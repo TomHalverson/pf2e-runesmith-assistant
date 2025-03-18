@@ -1,6 +1,6 @@
 {
-  "id": "module",
-  "title": "New Module",
+  "id": "pf2e-runesmith-automation",
+  "title": "PF2e Runesmith Automation",
   "description": "",
   "version": "#{VERSION}#",
   "library": "false",
