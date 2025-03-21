@@ -10,7 +10,7 @@ Hooks.once("ready", async function () {
       (isRunesmith(actor) || hasFeat(actor, "runesmith-dedication"))
     ) {
       // Set Traced and Etched Runes
-      if (!a.getFlag(MODULE_ID, "runes")) a.setFlag(MODULE_ID, "runes", {});
+      if (!actor.getFlag(MODULE_ID, "runes")) actor.setFlag(MODULE_ID, "runes", {});
     }
     const inventoryList = html.find(
       ".sheet-body .inventory-list.directory-list.inventory-pane"
@@ -44,10 +44,12 @@ Hooks.once("ready", async function () {
     runeButtonRegion.append(manageRuneButton);
     runeButtonRegion.append(clearRuneButton);
     inventoryList.append(runeButtonRegion);
-    $(manageRuneButton).click({ actor: a }, function (event) {
+    $(manageRuneButton).click({ actor }, function (event) {
+      console.log({event})
       //manageImplements(event);
     });
-    $(clearRuneButton).click({ actor: a }, function (event) {
+    $(clearRuneButton).click({ actor }, function (event) {
+      console.log({event})
       //clearImplements(event);
     });
   });
