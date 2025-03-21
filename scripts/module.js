@@ -21,13 +21,13 @@ Hooks.once("ready", async function () {
     );
 
     //TODO Fix me
-    const manageImplementButton = $(
+    const manageRuneButton = $(
       `<button type="button" class="manage-implements-button">${game.i18n.localize(
         "pf2e-thaum-vuln.manageImplements.manageImplementsButton"
       )}</button>`
     );
     //TODO Fix me
-    const clearImplementButton = $(
+    const clearRuneButton = $(
       `<button type="button" class="clear-implements-button">${game.i18n.localize(
         "pf2e-thaum-vuln.manageImplements.clearImplementsButton"
       )}</button>`
@@ -41,6 +41,15 @@ Hooks.once("ready", async function () {
     
     `
     );
+    runeButtonRegion.append(manageRuneButton);
+    runeButtonRegion.append(clearRuneButton);
+    inventoryList.append(runeButtonRegion);
+    $(manageRuneButton).click({ actor: a }, function (event) {
+      //manageImplements(event);
+    });
+    $(clearRuneButton).click({ actor: a }, function (event) {
+      //clearImplements(event);
+    });
   });
 });
 
