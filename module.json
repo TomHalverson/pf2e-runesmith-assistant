@@ -1,6 +1,6 @@
 {
-  "id": "pf2e-runesmith-automation",
-  "title": "PF2e Runesmith Automation",
+  "id": "pf2e-runesmith-assistant",
+  "title": "PF2e Runesmith Assistant",
   "description": "",
   "version": "#{VERSION}#",
   "library": "false",
