@@ -134,7 +134,6 @@ Hooks.once("ready", async function () {
           )
         );
         manageRunesSection.append(runesActiveLabel);
-        x;
       }
 
       manageRunesSection.insertAfter(strikesList);
@@ -143,23 +142,18 @@ Hooks.once("ready", async function () {
 });
 
 const dataStructRunes = {
-  traced: {
-    runes: [
+  traced: [
       {
         target: "",
         rune: "",
       },
     ],
-  },
-  etched: {
-    max: 2,
-    runes: [
+  etched: [
       {
         target: "",
         rune: "",
       },
     ],
-  },
 };
 
 // Does the actor have the feat, searching by slug
