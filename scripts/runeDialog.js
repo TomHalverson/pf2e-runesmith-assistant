@@ -1,7 +1,14 @@
 import { runeAppliedMessage } from "./messageHelpers.js";
-import { showDynamicForm } from "./tokenDialog.js";
+import { createRuneTraceEffectCounter, getEffects } from "./misc.js";
+import { MODULE_ID } from "./module.js";
+import { showDynamicForm } from "./targetDialog.js";
 
-export async function runeEtchTraceDialog(token) {
+export async function runeEtchTraceDialog() {
+  const token =
+    canvas.tokens.controlled?.[0] ||
+    canvas.tokens.placeables.find(
+      (t) => t?.actor?.id === game?.user?.character?.id
+    );
   const actor = token.actor;
   const runesList = actor.items.contents.filter((it) =>
     it.system?.traits?.value?.includes("rune")
@@ -32,6 +39,7 @@ export async function runeEtchTraceDialog(token) {
           uuid: r.uuid,
           img: r.img,
           link: r.link,
+          effects: getEffects(r.description),
           enriched_desc: (
             await TextEditor.enrichHTML(r.description, { rollData })
           ).replaceAll("'", '"'),
@@ -42,8 +50,8 @@ export async function runeEtchTraceDialog(token) {
   console.log({ runeData });
 
   let res = await pickDialog({ runes: runeData, actor, token });
+  console.log({ res });
 }
-console.log({ res });
 
 async function pickDialog({ runes, actor, token }) {
   let rune_content = ``;
@@ -161,6 +169,7 @@ async function pickDialog({ runes, actor, token }) {
 async function addRune(rune, { actor, token, type = "etch", action = 0 }) {
   const target = await await showDynamicForm({ token });
   let runes = actor.getFlag(MODULE_ID, "runes");
+  const id = foundry.utils.randomID();
 
   if (type === "etch") {
     const maxEtchedRunes = 2 + Math.floor((token.actor.level - 1) / 4);
@@ -170,13 +179,16 @@ async function addRune(rune, { actor, token, type = "etch", action = 0 }) {
     runes.etched.push({
       rune,
       target,
+      id
     });
   }
   if (type === "trace") {
     runes.traced.push({
       rune,
       target,
+      id
     });
+    createRuneTraceEffectCounter({ rune, target, token, actor, id });
   }
   await actor.setFlag(MODULE_ID, "runes", runes);
   runeAppliedMessage({ actor, token, rune, target, type, action });

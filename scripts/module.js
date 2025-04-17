@@ -1,6 +1,6 @@
 import { setupAPI } from "./api.js";
 
-export const MODULE_ID = "pf2e-runesmith-automation";
+export const MODULE_ID = "pf2e-runesmith-assistant";
 
 Hooks.once("init", async function () {});
 
