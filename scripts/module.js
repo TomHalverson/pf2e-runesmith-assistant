@@ -146,17 +146,17 @@ Hooks.once("ready", async function () {
 
 const dataStructRunes = {
   traced: [
-      {
-        target: "",
-        rune: "",
-      },
-    ],
+    {
+      target: "",
+      rune: "",
+    },
+  ],
   etched: [
-      {
-        target: "",
-        rune: "",
-      },
-    ],
+    {
+      target: "",
+      rune: "",
+    },
+  ],
 };
 
 // Does the actor have the feat, searching by slug

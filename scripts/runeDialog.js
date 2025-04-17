@@ -179,16 +179,16 @@ async function addRune(rune, { actor, token, type = "etch", action = 0 }) {
     runes.etched.push({
       rune,
       target,
-      id
+      id,
     });
   }
   if (type === "trace") {
     runes.traced.push({
       rune,
       target,
-      id
+      id,
     });
-    createRuneTraceEffectCounter({ rune, target, token, actor, id });
+    createRuneTraceEffectCounter({ rune, target, token, actor, id, type });
   }
   await actor.setFlag(MODULE_ID, "runes", runes);
   runeAppliedMessage({ actor, token, rune, target, type, action });
