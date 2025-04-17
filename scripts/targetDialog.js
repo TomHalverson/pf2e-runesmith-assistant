@@ -1,4 +1,4 @@
-export function showDynamicForm(token) {
+export function showDynamicForm() {
   const formData = {
     type: null,
     item: null,
@@ -177,7 +177,7 @@ export function showDynamicForm(token) {
 }
 
 // Helper function remains the same
-function getTokenImage(token) {
+export function getTokenImage(token) {
   return token.document.ring.enabled
     ? token.document.ring.subject.texture.src || token.document.texture.src
     : token.document.texture.src;

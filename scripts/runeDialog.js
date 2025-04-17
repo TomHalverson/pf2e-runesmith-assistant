@@ -1,5 +1,5 @@
 import { runeAppliedMessage } from "./messageHelpers.js";
-import { createRuneTraceEffectCounter, getEffects } from "./misc.js";
+import { createRuneTraceEffect, getEffects } from "./misc.js";
 import { MODULE_ID } from "./module.js";
 import { showDynamicForm } from "./targetDialog.js";
 
@@ -167,7 +167,7 @@ async function pickDialog({ runes, actor, token }) {
  *
  */
 async function addRune(rune, { actor, token, type = "etch", action = 0 }) {
-  const target = await await showDynamicForm({ token });
+  const target = await await showDynamicForm();
   let runes = actor.getFlag(MODULE_ID, "runes");
   const id = foundry.utils.randomID();
 
@@ -188,8 +188,8 @@ async function addRune(rune, { actor, token, type = "etch", action = 0 }) {
       target,
       id,
     });
-    createRuneTraceEffectCounter({ rune, target, token, actor, id, type });
   }
+  socketlib.modules.get(MODULE_ID).executeAsGM("createEffect", { rune, target, token, actor, id, type })
   await actor.setFlag(MODULE_ID, "runes", runes);
   runeAppliedMessage({ actor, token, rune, target, type, action });
 }

@@ -8,10 +8,10 @@ import { getTokenImage } from "./targetDialog.js";
  */
 export function getEffects(description) {
   const regex = /@UUID\[([^\]]+)\](?=\{(?:Spell )?Effect: )/g;
-  return description.match(regex).map((str) => str.slice(6, -1)) ?? [];
+  return description.match(regex)?.map((str) => str?.slice(6, -1)) ?? [];
 }
 
-export async function createRuneTraceEffectCounter({
+export async function createRuneTraceEffect({
   rune,
   target,
   token,
@@ -34,12 +34,12 @@ export async function createRuneTraceEffectCounter({
   const effectData = {
     type: "effect",
     name: effectName,
-    img: tokenSRC.id === token ? img : getTokenImage(tokenSRC),
+    img: tokenSRC.id === token.id ? img : getTokenImage(token),
     system: {
       tokenIcon: { show: false },
       duration: {
         value: 1,
-        unit: "rounds",
+        unit: type === "etch" ? "unlimited" : "rounds",
         sustained: false,
         expiry: "turn-end",
       },
@@ -74,9 +74,16 @@ export async function createRuneTraceEffectCounter({
     },
     flags: {},
   };
-
-  const effect = await token.actor.createEmbeddedDocuments("Item", [
-    effectData,
-  ]);
-  await effect?.[0]?.setFlag(MODULE_ID, "rune", { rune, target, token, actor, id });
+  const act = object ? token.actor : tokenSRC.actor;
+  const effects = await act.createEmbeddedDocuments("Item", [effectData], {
+    parent: token.actor,
+  });
+  const effect = effects?.[0];
+  effect?.setFlag(MODULE_ID, "rune", {
+    rune,
+    target,
+    token,
+    actor,
+    id,
+  });
 }

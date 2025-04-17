@@ -1,3 +1,5 @@
+import { getTokenImage } from "./targetDialog";
+
 export function showDynamicForm(token) {
   const formData = {
     type: null,
@@ -175,13 +177,6 @@ export function showDynamicForm(token) {
       });
     }
   });
-}
-
-// Helper function remains the same
-function getTokenImage(token) {
-  return token.document.ring.enabled
-    ? token.document.ring.subject.texture.src || token.document.texture.src
-    : token.document.texture.src;
 }
 
 // // Usage
