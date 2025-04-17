@@ -1,8 +1,11 @@
-const MODULE_ID = "pf2e-runesmith-automation";
+import { setupAPI } from "./api.js";
+
+export const MODULE_ID = "pf2e-runesmith-automation";
 
 Hooks.once("init", async function () {});
 
 Hooks.once("ready", async function () {
+  setupAPI();
   Hooks.on("renderCharacterSheetPF2e", (_sheet, html, character) => {
     const actor = _sheet.actor;
     if (
