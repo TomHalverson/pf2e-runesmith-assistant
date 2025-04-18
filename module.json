@@ -4,7 +4,6 @@
   "description": "WIP, this module is still in alpha and subject to changes and breakages so use at your own risk",
   "version": "#{VERSION}#",
   "library": "false",
-  "manifestPlusVersion": "1.2.0",
   "compatibility": {
     "minimum": 12,
     "verified": 12
