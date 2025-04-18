@@ -1,4 +1,5 @@
 import { setupAPI } from "./api.js";
+import { setupHooks } from "./hooks.js";
 import { setupSocket } from "./socket.js";
 
 export const MODULE_ID = "pf2e-runesmith-assistant";
@@ -14,6 +15,7 @@ Hooks.once("setup", function () {
 
 Hooks.once("ready", async function () {
   setupAPI();
+  setupHooks()
   Hooks.on("renderCharacterSheetPF2e", (_sheet, html, character) => {
     const actor = _sheet.actor;
     if (
