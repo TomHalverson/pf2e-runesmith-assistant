@@ -130,7 +130,7 @@ export function targetDescription(target) {
     const token =
       canvas.tokens.get(target.token) ||
       canvas.tokens.placeables.find((t) => t.actor.id === target.actor);
-    const name = token?.name ?? "";
+    const name = token?.name ?? target.personName;
     const item = target?.item;
     return `${name}${item ? "'s " : ""}${item ? item : ""}`;
   }

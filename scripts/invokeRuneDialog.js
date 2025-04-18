@@ -140,8 +140,12 @@ async function pickDialog({ token }) {
 async function dispelRune({ token, runeID, type }) {
   const actor = token?.actor;
   const flag = actor?.getFlag(MODULE_ID, "runes");
+  const {target} = flag.[type].find((r) => r.id === runeID);
   flag[type] = flag?.[type]?.filter((r) => r.id !== runeID);
   await actor.setFlag(MODULE_ID, "runes", flag);
+  socketlib.modules
+    .get(MODULE_ID)
+    .executeAsGM("deleteEffect", {id: runeID, target, srcToken: token});
 }
 
 async function invokeRune({ token, runeID, type }) {
@@ -159,7 +163,7 @@ async function invokeRune({ token, runeID, type }) {
   flag[type] = flag?.[type]?.filter((r) => r.id !== runeID);
   await actor.setFlag(MODULE_ID, "runes", flag);
 
-  runeInvokedMessage({
+  await runeInvokedMessage({
     token,
     actor,
     rune,
@@ -167,6 +171,10 @@ async function invokeRune({ token, runeID, type }) {
     traits,
     invocation: invocation.desc,
   });
+  
+  socketlib.modules
+    .get(MODULE_ID)
+    .executeAsGM("deleteEffect", {id: runeID, target, srcToken: token});
 }
 
 //const INVOCATION_REGEX = /<p><strong>Invocation<\/strong>[\s\S]*/;
