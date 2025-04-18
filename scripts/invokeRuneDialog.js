@@ -22,6 +22,10 @@ async function pickDialog({ token }) {
   const flags = token?.actor?.getFlag(MODULE_ID, "runes");
   const etched = flags?.etched ?? [];
   const traced = flags?.traced ?? [];
+  if (etched.length === 0 && traced.length === 0) {
+    ui.notifications.error("You have no runes applied");
+    return;
+  }
   const MAX_ETCHED = getMaxEtchedRunes(token.actor);
 
   // Helper to render etched runes as selectable, with names below
@@ -140,12 +144,12 @@ async function pickDialog({ token }) {
 async function dispelRune({ token, runeID, type }) {
   const actor = token?.actor;
   const flag = actor?.getFlag(MODULE_ID, "runes");
-  const {target} = flag.[type].find((r) => r.id === runeID);
+  const { target } = flag[type].find((r) => r.id === runeID);
   flag[type] = flag?.[type]?.filter((r) => r.id !== runeID);
   await actor.setFlag(MODULE_ID, "runes", flag);
   socketlib.modules
     .get(MODULE_ID)
-    .executeAsGM("deleteEffect", {id: runeID, target, srcToken: token});
+    .executeAsGM("deleteEffect", { id: runeID, target, srcToken: token });
 }
 
 async function invokeRune({ token, runeID, type }) {
@@ -158,7 +162,15 @@ async function invokeRune({ token, runeID, type }) {
   const rune = await fromUuid(flagData.rune.uuid);
   const invocation = getInvocation(rune.description);
 
-  const traits = [...rune.traits.toObject(), ...invocation.traits];
+  const traits = [
+    ...new Set([
+      "invocation",
+      "magical",
+      "runesmith",
+      ...rune.traits.toObject(),
+      ...invocation.traits,
+    ]),
+  ];
 
   flag[type] = flag?.[type]?.filter((r) => r.id !== runeID);
   await actor.setFlag(MODULE_ID, "runes", flag);
@@ -171,10 +183,10 @@ async function invokeRune({ token, runeID, type }) {
     traits,
     invocation: invocation.desc,
   });
-  
+
   socketlib.modules
     .get(MODULE_ID)
-    .executeAsGM("deleteEffect", {id: runeID, target, srcToken: token});
+    .executeAsGM("deleteEffect", { id: runeID, target, srcToken: token });
 }
 
 //const INVOCATION_REGEX = /<p><strong>Invocation<\/strong>[\s\S]*/;
