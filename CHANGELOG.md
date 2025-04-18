@@ -19,6 +19,8 @@
       - Removes any relevant rune effects
   - `Rune Effect Removal`
     - Removing any rune effects will also remove them from the applied runes list (IE the Etched and Traced runes)
+  - `Rune Repoitoire`
+    - Added a container called `Rune Repoitoire` to compendium, it only exists just so it's easier to sort runes out of the way
   - `Known Broken`
     - Some of the styling for the dialog affects chat messsages
     - The `Character Sheet` action UI section is just placeholders borrowed from `PF2e Exploit Vulnerability`
