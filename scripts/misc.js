@@ -1,4 +1,3 @@
-import { MODULE_ID } from "./module.js";
 import { getTokenImage } from "./targetDialog.js";
 
 /**
@@ -9,6 +8,28 @@ import { getTokenImage } from "./targetDialog.js";
 export function getEffects(description) {
   const regex = /@UUID\[([^\]]+)\](?=\{(?:Spell )?Effect: )/g;
   return description.match(regex)?.map((str) => str?.slice(6, -1)) ?? [];
+}
+
+/**
+ * Gets your selected or Character if you have one set
+ * @returns {token} Your selected or owned token
+ */
+export function getYourToken() {
+  return (
+    canvas.tokens.controlled?.[0] ||
+    canvas.tokens.placeables.find(
+      (t) => t?.actor?.id === game?.user?.character?.id
+    )
+  );
+}
+
+/**
+ * Get the Max Number of etched runes for an actor
+ * @param {Actor} actor Actor to get max etched Runes for
+ * @returns {number} Returns the max number of etched runes
+ */
+export function getMaxEtchedRunes(actor) {
+  return 2 + Math.floor((actor.level - 1) / 4);
 }
 
 export async function createRuneTraceEffect({
@@ -27,30 +48,30 @@ export async function createRuneTraceEffect({
   const object = target?.object;
   const item = target?.item;
 
-  const effectName = `[${type === "etch" ? "Etched" : "Traced"}] ${name}${
+  const effectName = `[${type === "etched" ? "Etched" : "Traced"}] ${name}${
     object || item ? " on " : ""
   }${object ? object : ""}${item ? item : ""}`;
 
   const effectData = {
     type: "effect",
     name: effectName,
-    img: tokenSRC.id === token.id ? img : getTokenImage(token),
+    img: img,
     system: {
       tokenIcon: { show: false },
       duration: {
         value: 1,
-        unit: type === "etch" ? "unlimited" : "rounds",
+        unit: type === "etched" ? "unlimited" : "rounds",
         sustained: false,
         expiry: "turn-end",
       },
       description: {
         value: enriched_desc,
       },
-      unidentified: true,
+      unidentified: false,
       traits: {
         custom: "",
         rarity: "common",
-        value: [],
+        value: rune.traits,
       },
       rules: rune.effects.map((effectUUID) => ({
         key: "GrantItem",
@@ -61,6 +82,15 @@ export async function createRuneTraceEffect({
       })),
       level: {
         value: tokenSRC?.actor?.level ?? 1,
+      },
+      flags: {
+        "pf2e-runesmith-assistant": {
+          source: {
+            id,
+            actorUUID: actor.uuid,
+            type,
+          },
+        },
       },
       source: {
         value: "created by PF2e Runesmith Assistant",
@@ -74,16 +104,17 @@ export async function createRuneTraceEffect({
     },
     flags: {},
   };
-  const act = object ? token.actor : tokenSRC.actor;
+  const act = object ? token.actor : tokenSRC?.actor;
   const effects = await act.createEmbeddedDocuments("Item", [effectData], {
     parent: token.actor,
   });
-  const effect = effects?.[0];
-  effect?.setFlag(MODULE_ID, "rune", {
-    rune,
-    target,
-    token,
-    actor,
-    id,
-  });
+  console.log({ effects });
+  //   const effect = effects?.[0];
+  //   effect?.setFlag(MODULE_ID, "rune", {
+  //     rune,
+  //     target,
+  //     token,
+  //     actor,
+  //     id,
+  //   });
 }

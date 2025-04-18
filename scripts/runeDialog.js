@@ -1,14 +1,10 @@
 import { runeAppliedMessage } from "./messageHelpers.js";
-import { createRuneTraceEffect, getEffects } from "./misc.js";
+import { getEffects, getMaxEtchedRunes, getYourToken } from "./misc.js";
 import { MODULE_ID } from "./module.js";
 import { showDynamicForm } from "./targetDialog.js";
 
 export async function runeEtchTraceDialog() {
-  const token =
-    canvas.tokens.controlled?.[0] ||
-    canvas.tokens.placeables.find(
-      (t) => t?.actor?.id === game?.user?.character?.id
-    );
+  const token = getYourToken();
   const actor = token.actor;
   const runesList = actor.items.contents.filter((it) =>
     it.system?.traits?.value?.includes("rune")
@@ -39,6 +35,7 @@ export async function runeEtchTraceDialog() {
           uuid: r.uuid,
           img: r.img,
           link: r.link,
+          traits: r.system.traits.value,
           effects: getEffects(r.description),
           enriched_desc: (
             await TextEditor.enrichHTML(r.description, { rollData })
@@ -127,7 +124,7 @@ async function pickDialog({ runes, actor, token }) {
             //actor.items.get(itemId).toMessage()
             addRune(
               runes.find((s) => s.id === itemId),
-              { actor, token, type: "etch" }
+              { actor, token, type: "etched" }
             );
             resolve(itemId);
           },
@@ -139,7 +136,7 @@ async function pickDialog({ runes, actor, token }) {
             let itemId = $("input[type='radio'][name='song']:checked").val();
             addRune(
               runes.find((s) => s.id === itemId),
-              { actor, token, type: "trace", action: "1" }
+              { actor, token, type: "traced", action: "1" }
             );
             resolve(itemId);
           },
@@ -151,7 +148,7 @@ async function pickDialog({ runes, actor, token }) {
             let itemId = $("input[type='radio'][name='song']:checked").val();
             addRune(
               runes.find((s) => s.id === itemId),
-              { actor, token, type: "trace", action: "2" }
+              { actor, token, type: "traced", action: "2" }
             );
             resolve(itemId);
           },
@@ -166,30 +163,27 @@ async function pickDialog({ runes, actor, token }) {
 /**
  *
  */
-async function addRune(rune, { actor, token, type = "etch", action = 0 }) {
-  const target = await await showDynamicForm();
+async function addRune(rune, { actor, token, type = "etched", action = 0 }) {
+  const target = await showDynamicForm();
   let runes = actor.getFlag(MODULE_ID, "runes");
   const id = foundry.utils.randomID();
 
-  if (type === "etch") {
-    const maxEtchedRunes = 2 + Math.floor((token.actor.level - 1) / 4);
+  if (type === "etched") {
+    const maxEtchedRunes = getMaxEtchedRunes(token.actor);
     if (runes.etched.length >= maxEtchedRunes) {
       runes.etched.pop();
     }
-    runes.etched.push({
-      rune,
-      target,
-      id,
-    });
   }
-  if (type === "trace") {
-    runes.traced.push({
-      rune,
-      target,
-      id,
-    });
-  }
-  socketlib.modules.get(MODULE_ID).executeAsGM("createEffect", { rune, target, token, actor, id, type })
+
+  runes[type].push({
+    rune,
+    target,
+    id,
+  });
+
+  socketlib.modules
+    .get(MODULE_ID)
+    .executeAsGM("createEffect", { rune, target, token, actor, id, type });
   await actor.setFlag(MODULE_ID, "runes", runes);
   runeAppliedMessage({ actor, token, rune, target, type, action });
 }

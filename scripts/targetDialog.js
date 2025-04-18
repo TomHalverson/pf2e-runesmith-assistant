@@ -168,6 +168,9 @@ export function showDynamicForm() {
         formData.actor = availableTokens.find(
           (t) => t.id === tokenId
         )?.actor?.id;
+        formData.personName = availableTokens.find(
+          (t) => t.id === tokenId
+        )?.name
         html.find(".token-card").removeClass("selected");
         ev.currentTarget.classList.add("selected");
         html.find("#location-section").removeClass("hidden");
