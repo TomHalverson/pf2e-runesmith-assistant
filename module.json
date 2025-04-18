@@ -1,7 +1,7 @@
 {
   "id": "pf2e-runesmith-assistant",
   "title": "PF2e Runesmith Assistant",
-  "description": "",
+  "description": "WIP, this module is still in alpha and subject to changes and breakages so use at your own risk",
   "version": "#{VERSION}#",
   "library": "false",
   "manifestPlusVersion": "1.2.0",
@@ -18,17 +18,17 @@
   ],
   "relationships": {
     "systems": [],
-    "requires": []
+    "requires": [
+      {
+        "id": "socketlib",
+        "type": "module",
+        "manifest": "https://raw.githubusercontent.com/manuelVo/foundryvtt-socketlib/master/module.json"
+      }
+    ]
   },
-  "esmodules": [
-    "scripts/module.js"
-  ],
-  "scripts": [
-    "scripts/lib/lib.js"
-  ],
-  "styles": [
-    "styles/module.css"
-  ],
+  "esmodules": ["scripts/module.js"],
+  "scripts": ["scripts/lib/lib.js"],
+  "styles": ["styles/module.css"],
   "languages": [
     {
       "lang": "en",
@@ -36,11 +36,36 @@
       "path": "languages/en.json"
     }
   ],
+  "socket": true,
   "url": "#{URL}#",
   "manifest": "#{MANIFEST}#",
   "download": "#{DOWNLOAD}#",
   "license": "LICENSE",
   "readme": "README.md",
+  "packs": [
+    {
+      "name": "pf2e-runesmith-assistant-items",
+      "label": "PF2e Runesmith Assistant: Items",
+      "path": "packs/pf2e-runesmith-assistant-items",
+      "type": "Item",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "system": "pf2e"
+    },
+    {
+      "name": "pf2e-runesmith-assistant-macro",
+      "label": "PF2e Runesmith Assistant: Macro",
+      "path": "packs/pf2e-runesmith-assistant-macro",
+      "type": "Macro",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "system": "pf2e"
+    }
+  ],
   "media": [
     {
       "type": "icon",
