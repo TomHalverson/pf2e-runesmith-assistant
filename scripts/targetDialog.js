@@ -164,13 +164,10 @@ export function showDynamicForm() {
       // Delegated event handler for tokens
       tokenList.on("click", ".token-card", (ev) => {
         const tokenId = ev.currentTarget.dataset.tokenId;
+        const tok = availableTokens.find((t) => t.id === tokenId);
         formData.token = tokenId;
-        formData.actor = availableTokens.find(
-          (t) => t.id === tokenId
-        )?.actor?.id;
-        formData.personName = availableTokens.find(
-          (t) => t.id === tokenId
-        )?.name
+        formData.actor = tok?.actor?.id;
+        formData.personName = getAllowedTokenName(token);
         html.find(".token-card").removeClass("selected");
         ev.currentTarget.classList.add("selected");
         html.find("#location-section").removeClass("hidden");
@@ -186,6 +183,22 @@ export function getTokenImage(token) {
     : token.document.texture.src;
 }
 
+export function getAllowedTokenName(token) {
+  const isOwner = token?.isOwner;
+  const displayMode = token?.document?.displayName;
+  const nameVisible =
+    (isOwner &&
+      [
+        CONST.TOKEN_DISPLAY_MODES.CONTROL,
+        CONST.TOKEN_DISPLAY_MODES.OWNER,
+        CONST.TOKEN_DISPLAY_MODES.OWNER_HOVER,
+      ].includes(displayMode)) ||
+    [
+      CONST.TOKEN_DISPLAY_MODES.ALWAYS,
+      CONST.TOKEN_DISPLAY_MODES.HOVER,
+    ].includes(displayMode);
+  return nameVisible ? token.name : "Unidentified Creature";
+}
 // // Usage
 // const result = await showDynamicForm();
 // console.log(result);
