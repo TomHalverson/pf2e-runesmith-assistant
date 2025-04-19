@@ -145,6 +145,7 @@ export function setupHooks() {
           const srcToken = canvas.tokens.placeables.find(
             (t) => t.actor.id === actor.id
           );
+          const target = runeData.target;
           const token = target?.object
             ? srcToken
             : canvas.tokens.get(target.token) ||
@@ -187,7 +188,7 @@ export function setupHooks() {
           }).render(true);
         });
 
-      // Rune image right click: open dialog to dispell
+      // Rune image right click: open dialog to dispel
       runesFieldset
         .find(".rune-img:not(.placeholder)")
         .on("contextmenu", async function (event) {
@@ -197,6 +198,7 @@ export function setupHooks() {
           const srcToken = canvas.tokens.placeables.find(
             (t) => t.actor.id === actor.id
           );
+          const target = runeData.target;
           const token = target?.object
             ? srcToken
             : canvas.tokens.get(target.token) ||

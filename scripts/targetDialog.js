@@ -199,6 +199,3 @@ export function getAllowedTokenName(token) {
     ].includes(displayMode);
   return nameVisible ? token.name : "Unidentified Creature";
 }
-// // Usage
-// const result = await showDynamicForm();
-// console.log(result);
