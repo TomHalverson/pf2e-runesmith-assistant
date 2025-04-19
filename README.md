@@ -1,8 +1,8 @@
 ![](https://img.shields.io/badge/Foundry-v12-informational)
-<!--- Downloads @ Latest Badge -->
-<!--- replace <user>/<repo> with your username/repository -->
 ![All Downloads](https://img.shields.io/github/downloads/ChasarooniZ/pf2e-runesmith-assistant/total?color=5e0000&label=All%20Downloads)
 ![Latest Release Download Count](https://img.shields.io/github/downloads/ChasarooniZ/pf2e-runesmith-assistant/latest/module.zip)
+
+[![Kofi](https://img.shields.io/badge/Kofi-F16061.svg?logo=ko-fi&logoColor=white)](https://ko-fi.com/Chasarooni)
 
 <!--- Forge Bazaar Install % Badge -->
 <!--- replace <your-module-name> with the `name` in your manifest -->
