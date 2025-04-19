@@ -15,6 +15,7 @@ export async function runeAppliedMessage({
   type,
   action,
 }) {
+  const traceDistance = action === "2" ? " (30 ft.)" : "";
   await ChatMessage.create({
     author: game.user.id,
     content: applyMessageHelper({ rune, target, type }),
@@ -27,10 +28,7 @@ export async function runeAppliedMessage({
         type === "etched"
           ? ["exploration"]
           : ["concentrate", "magical", "manipulate", "runesmith"],
-      name:
-        type === "etched"
-          ? `Etch Rune`
-          : `Trace Rune ${action === "2" ? " (30 ft.)" : ""}`,
+      name: type === "etched" ? `Etch Rune` : `Trace Rune ${traceDistance}`,
       glyph: type === "etched" ? "" : action,
     }),
     flags: {
@@ -132,6 +130,6 @@ export function targetDescription(target) {
       canvas.tokens.placeables.find((t) => t.actor.id === target.actor);
     const name = token?.name ?? target.personName;
     const item = target?.item;
-    return `${name}${item ? "'s " : ""}${item ? item : ""}`;
+    return `${name}${item ? "'s " : ""}${item || ""}`;
   }
 }

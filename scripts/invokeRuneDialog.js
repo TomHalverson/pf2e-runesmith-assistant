@@ -141,7 +141,7 @@ async function pickDialog({ token }) {
   });
 }
 
-async function dispelRune({ token, runeID, type }) {
+export async function dispelRune({ token, runeID, type }) {
   const actor = token?.actor;
   const flag = actor?.getFlag(MODULE_ID, "runes");
   const { target } = flag[type].find((r) => r.id === runeID);
@@ -152,7 +152,7 @@ async function dispelRune({ token, runeID, type }) {
     .executeAsGM("deleteEffect", { id: runeID, target, srcToken: token });
 }
 
-async function invokeRune({ token, runeID, type }) {
+export async function invokeRune({ token, runeID, type }) {
   const actor = token?.actor;
   const flag = actor?.getFlag(MODULE_ID, "runes");
   console.log({ flag, token, runeID, type });
@@ -189,7 +189,6 @@ async function invokeRune({ token, runeID, type }) {
     .executeAsGM("deleteEffect", { id: runeID, target, srcToken: token });
 }
 
-//const INVOCATION_REGEX = /<p><strong>Invocation<\/strong>[\s\S]*/;
 const STRICT_INVOCATION_REGEX =
   /<strong>Invocation<\/strong>(?:\s*\([^)]+\))?\s*([\s\S]*)/;
 const INVOCATION_TRAITS_REGEX = /<strong>Invocation<\/strong>\s*\(([^)]*)\)/;

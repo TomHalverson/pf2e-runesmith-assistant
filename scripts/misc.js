@@ -1,5 +1,3 @@
-import { getTokenImage } from "./targetDialog.js";
-
 /**
  * Gets the effect Link strings from inside
  * @param {string} description Description of the item to extract effects from
@@ -32,6 +30,29 @@ export function getMaxEtchedRunes(actor) {
   return 2 + Math.floor((actor.level - 1) / 4);
 }
 
+/**
+ * Does the actor have the feat, searching by slug
+ * @param {Actor} actor Actor
+ * @param {string} slug Slug of feat
+ * @returns true if has feat
+ */
+export function hasFeat(actor, slug) {
+  return actor.itemTypes.feat.some((feat) => feat.slug === slug);
+}
+
+/**
+ * Is the actor a runesmith
+ * @param {Actor} actor Actor
+ * @returns true if runesmith
+ */
+export function isRunesmith(actor) {
+  return (
+    actor &&
+    (actor.class?.slug === "runesmith" ||
+      actor.rollOptions.all["class:runesmith"])
+  );
+}
+
 export async function createRuneTraceEffect({
   rune,
   target,
@@ -50,7 +71,7 @@ export async function createRuneTraceEffect({
 
   const effectName = `[${type === "etched" ? "Etched" : "Traced"}] ${name}${
     object || item ? " on " : ""
-  }${object ? object : ""}${item ? item : ""}`;
+  }${object || ""}${item || ""}`;
 
   const effectData = {
     type: "effect",
@@ -103,20 +124,11 @@ export async function createRuneTraceEffect({
           item ?? ""
         }`
       ),
-    },
-    flags: {},
+    }
   };
   const act = object ? token.actor : tokenSRC?.actor;
   const effects = await act.createEmbeddedDocuments("Item", [effectData], {
     parent: token.actor,
   });
   console.log({ effects });
-  //   const effect = effects?.[0];
-  //   effect?.setFlag(MODULE_ID, "rune", {
-  //     rune,
-  //     target,
-  //     token,
-  //     actor,
-  //     id,
-  //   });
 }
