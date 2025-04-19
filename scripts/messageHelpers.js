@@ -80,7 +80,7 @@ export async function runeInvokedMessage({
     author: game.user.id,
     content: `<b>${rune.link}</b> <i>on ${targetDescription(
       target
-    )}</i><hr>${enrichedDescription}`,
+    )}</i><hr><fieldset>${enrichedDescription}</fieldset>`,
     speaker: ChatMessage.getSpeaker({
       actor: actor,
       token: token,

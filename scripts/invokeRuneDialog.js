@@ -66,10 +66,10 @@ async function pickDialog({ token }) {
       let rune = runeData?.rune;
       html += `<label class="radio-label" data-tooltip="<i>Applied to ${targetDescription(
         runeData.target
-      )}</i><hr>${rune.enriched_desc.replaceAll(
+      )}</i><hr><fieldset>${rune.enriched_desc.replaceAll(
         '"',
         "'"
-      )}" data-tooltip-direction="UP">
+      )}</fieldset>" data-tooltip-direction="UP">
                         <input type="radio" name="song" value="${runeData?.id}">
                         <img src="${
                           rune.img
