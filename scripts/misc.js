@@ -73,13 +73,15 @@ export async function createRuneTraceEffect({
         rarity: "common",
         value: rune.traits,
       },
-      rules: rune.effects.map((effectUUID) => ({
-        key: "GrantItem",
-        onDeleteEffects: {
-          grantee: "restrict",
-        },
-        uuid: effectUUID,
-      })),
+      rules: object
+        ? []
+        : rune.effects.map((effectUUID) => ({
+            key: "GrantItem",
+            onDeleteEffects: {
+              grantee: "restrict",
+            },
+            uuid: effectUUID,
+          })),
       level: {
         value: tokenSRC?.actor?.level ?? 1,
       },
