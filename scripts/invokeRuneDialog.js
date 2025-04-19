@@ -1,3 +1,4 @@
+import { EMPTY_RUNE_ART } from "./const.js";
 import { runeInvokedMessage, targetDescription } from "./messageHelpers.js";
 import { getMaxEtchedRunes, getYourToken } from "./misc.js";
 import { MODULE_ID } from "./module.js";
@@ -15,9 +16,6 @@ export async function invokeRuneDialog() {
 }
 
 async function pickDialog({ token }) {
-  // Placeholder art for empty rune slots
-  const EMPTY_RUNE_ART = "icons/svg/d6-grey.svg"; // Replace with your preferred placeholder art
-
   // Get rune flags
   const flags = token?.actor?.getFlag(MODULE_ID, "runes");
   const etched = flags?.etched ?? [];
@@ -35,11 +33,15 @@ async function pickDialog({ token }) {
       let runeData = runes[i];
       let rune = runeData?.rune;
       if (rune) {
-        html += `<label class="rune-label" data-tooltip="<i>Applied to ${targetDescription(
+        html += `<label class="rune-label rune-item${
+          runeData?.id ? "" : " placeholder"
+        }" data-tooltip="<i>Applied to ${targetDescription(
           runeData.target
         )}</i><hr>${
           rune.enriched_desc.replaceAll('"', "'") ?? rune.name
-        }" data-tooltip-direction="UP">
+        }" data-tooltip-direction="UP"
+        data-rune-id="${runeData?.id}"
+        data-rune-type="etched">
                             <input type="radio" name="etched" value="${
                               runeData?.id
                             }">
@@ -64,18 +66,18 @@ async function pickDialog({ token }) {
     let html = `<div class="rune-section"><div class="rune-label">${label}</div><div class="form-group">`;
     for (let runeData of runes) {
       let rune = runeData?.rune;
-      html += `<label class="radio-label" data-tooltip="<i>Applied to ${targetDescription(
+      html += `<label class="radio-label rune-item" data-tooltip="<i>Applied to ${targetDescription(
         runeData.target
-      )}</i><hr><fieldset>${rune.enriched_desc.replaceAll(
-        '"',
-        "'"
-      )}</fieldset>" data-tooltip-direction="UP">
-                        <input type="radio" name="song" value="${runeData?.id}">
-                        <img src="${
-                          rune.img
-                        }" style="border:0px; width: 50px; height:50px;">
-                        <span class="rune-name">${rune.name}</span>
-                    </label>`;
+      )}</i><hr><fieldset>${rune.enriched_desc.replaceAll('"', "'")}</fieldset>"
+        data-tooltip-direction="UP"
+        data-rune-id="${runeData?.id}"
+        data-rune-type="traced">
+                <input type="radio" name="song" value="${runeData?.id}">
+                <img src="${
+                  rune.img
+                }" style="border:0px; width: 50px; height:50px;">
+                <span class="rune-name">${rune.name}</span>
+            </label>`;
     }
     html += `</div></div>`;
     return html;
@@ -137,12 +139,58 @@ async function pickDialog({ token }) {
           icon: '<i class="fa-solid fa-trash"></i>',
         },
       },
+      activateListeners: async (html) => {
+        // Rune image hover: highlight token
+        html.find(".rune-item:not(.placeholder)").hover(
+          function (event) {
+            const runeID = event.target.dataset.runeId;
+            const runeType = event.target.dataset.runeType;
+            const runeData = flags[runeType].find((r) => r.id === runeID);
+            const target = runeData.target;
+            if (target.type === "person" && target.token) {
+              const token =
+                canvas.tokens.get(target.token) ||
+                canvas.tokens.placeables.find(
+                  (t) => t.actor.id === target.actor
+                );
+              if (token) {
+                token._onHoverIn(event); // highlight token
+              }
+            }
+          },
+          function (event) {
+            // Remove highlight when mouse leaves
+            const runeID = event.target.dataset.runeId;
+            const runeType = event.target.dataset.runeType;
+            const runeData = flags[runeType].find((r) => r.id === runeID);
+            const target = runeData.target;
+            if (target.type === "person" && target.token) {
+              const token =
+                canvas.tokens.get(target.token) ||
+                canvas.tokens.placeables.find(
+                  (t) => t.actor.id === target.actor
+                );
+              if (token) {
+                token._onHoverOut(event); // remove highlight
+              }
+            }
+          }
+        );
+      },
     }).render(true, { width: 700 });
   });
 }
 
-export async function dispelRune({ token, runeID, type }) {
-  const actor = token?.actor;
+/**
+ * Removes an applied rune
+ * @param {Object} param Config data
+ * @param {String} param.token Runesmith Token
+ * @param {Actor} param.act Runesmith Actor (optional)
+ * @param {string} param.runeID Flag id of the applied rune
+ * @param {'etched' | 'traced'} param.type Whether the rune is etched or traced
+ */
+export async function dispelRune({ token, act, runeID, type }) {
+  const actor = token?.actor ?? act;
   const flag = actor?.getFlag(MODULE_ID, "runes");
   const { target } = flag[type].find((r) => r.id === runeID);
   flag[type] = flag?.[type]?.filter((r) => r.id !== runeID);
@@ -152,8 +200,16 @@ export async function dispelRune({ token, runeID, type }) {
     .executeAsGM("deleteEffect", { id: runeID, target, srcToken: token });
 }
 
-export async function invokeRune({ token, runeID, type }) {
-  const actor = token?.actor;
+/**
+ * Invokes an Applied Rune
+ * @param {Object} param Config data
+ * @param {String} param.token Runesmith Token
+ * @param {Actor} param.act Runesmith Actor (optional)
+ * @param {string} param.runeID Flag id of the applied rune
+ * @param {'etched' | 'traced'} param.type Whether the rune is etched or traced
+ */
+export async function invokeRune({ token, act, runeID, type }) {
+  const actor = token?.actor ?? act;
   const flag = actor?.getFlag(MODULE_ID, "runes");
   console.log({ flag, token, runeID, type });
   const flagData = flag?.[type]?.find((r) => r.id === runeID);

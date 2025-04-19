@@ -1,5 +1,8 @@
+import { getAllowedTokenName } from "./targetDialog";
+
 /**
- *
+ * Creates a rune Apply Message
+ * @param {Object} param Config data
  * @param {Actor} param.actor Actor
  * @param {Token} param.token Token
  * @param {Item} param.rune Rune Item
@@ -44,22 +47,21 @@ export async function runeAppliedMessage({
 }
 
 function applyMessageHelper({ rune, target, type }) {
-  let message = `${type === "etched" ? "Etched" : "Traced"} `;
-  message += rune.link;
+  const action = type === "etched" ? "Etched" : "Traced";
+  let targetText = "";
+
   if (target.type === "object") {
-    message += ` onto <b><u>${target.object}</u></b>`;
+    targetText = ` onto <b><u>${target.object}</u></b>`;
   } else if (target.type === "person") {
+    const tokenName = getAllowedTokenName(canvas.tokens.get(target?.token));
     if (target?.location === "actor") {
-      message += ` onto <b><u>${
-        canvas.tokens.get(target?.token)?.name
-      }</u></b>`;
+      targetText = ` onto <b><u>${tokenName}</u></b>`;
     } else if (target?.location === "item") {
-      message += ` onto <u><b>${
-        canvas.tokens.get(target?.token)?.name
-      }</b>'s <b>${target.item}</b></u>`;
+      targetText = ` onto <u><b>${tokenName}</b>'s <b>${target.item}</b></u>`;
     }
   }
-  return message;
+
+  return `${action} ${rune.link}${targetText}`;
 }
 
 export async function runeInvokedMessage({

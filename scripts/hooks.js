@@ -1,4 +1,5 @@
-import { invokeRune } from "./invokeRuneDialog.js";
+import { EMPTY_RUNE_ART } from "./const.js";
+import { dispelRune, invokeRune } from "./invokeRuneDialog.js";
 import { targetDescription } from "./messageHelpers.js";
 import { getMaxEtchedRunes, hasFeat, isRunesmith } from "./misc.js";
 import { MODULE_ID } from "./module.js";
@@ -68,22 +69,24 @@ export function setupHooks() {
     <div class="runes-row">
       ${etched
         .map(
-          (r) => `
-        <img src="${r.rune.img}" 
-          data-tooltip="${runeTooltip(r, enrichedDescriptions[r.rune.id])}" 
-          data-tooltip-direction="UP" 
-          class="rune-img"
-          data-rune-id="${r.id}"
-          data-rune-type="etched"
-          style="width:32px;height:32px;margin:2px;">
-      `
+          (r) => `<img
+                      src="${r.rune.img}" 
+                      data-tooltip="${runeTooltip(r, enrichedDescriptions[r.rune.id])}" 
+                      data-tooltip-direction="UP" 
+                      class="rune-img"
+                      data-rune-id="${r.id}"
+                      data-rune-type="etched"
+                      style="width:32px;height:32px;margin:2px;">`
         )
         .join("")}
       ${Array.from({ length: MAX_ETCHED - etched.length })
         .map(
-          () => `
-        <img src="icons/svg/d6-grey.svg" title="Empty Rune Slot" class="rune-img placeholder" style="width:32px;height:32px;opacity:0.3;margin:2px;">
-      `
+          () => `<img
+                    src="${EMPTY_RUNE_ART}"
+                    title="Empty Rune Slot"
+                    class="rune-img placeholder"
+                    style="width:32px;height:32px;opacity:0.3;margin:2px;"
+                  >`
         )
         .join("")}
     </div>
@@ -142,14 +145,6 @@ export function setupHooks() {
           const runeID = event.target.dataset.runeId;
           const runeType = event.target.dataset.runeType;
           const runeData = runes[runeType].find((r) => r.id === runeID);
-          const srcToken = canvas.tokens.placeables.find(
-            (t) => t.actor.id === actor.id
-          );
-          const target = runeData.target;
-          const token = target?.object
-            ? srcToken
-            : canvas.tokens.get(target.token) ||
-              canvas.tokens.placeables.find((t) => t.actor.id === target.actor);
           const content = await TextEditor.enrichHTML(
             `<p>Do you want to invoke this rune?</p>
                                               <strong>${
@@ -175,9 +170,7 @@ export function setupHooks() {
               yes: {
                 label: `<span class="pf2-icon">1</span> Invoke`,
                 callback: () => {
-                  // Place your invoke logic here
-                  invokeRune({ token, runeID, type: runeType });
-                  ui.notifications.info(`Invoked ${runeData.rune.name}!`);
+                  invokeRune({ act: actor, runeID, type: runeType });
                 },
                 icon: '<i class="fa-solid fa-hand-holding-magic"></i>',
               },
@@ -195,14 +188,6 @@ export function setupHooks() {
           const runeID = event.target.dataset.runeId;
           const runeType = event.target.dataset.runeType;
           const runeData = runes[runeType].find((r) => r.id === runeID);
-          const srcToken = canvas.tokens.placeables.find(
-            (t) => t.actor.id === actor.id
-          );
-          const target = runeData.target;
-          const token = target?.object
-            ? srcToken
-            : canvas.tokens.get(target.token) ||
-              canvas.tokens.placeables.find((t) => t.actor.id === target.actor);
           const content = await TextEditor.enrichHTML(
             `<p>Do you want to dispel (remove) this rune?</p><strong>
                                               <strong>${
@@ -228,8 +213,7 @@ export function setupHooks() {
               yes: {
                 label: "Dispel",
                 callback: () => {
-                  // Place your Dispel logic here
-                  dispelRune({ token, runeID, type: runeType });
+                  dispelRune({ act: actor, runeID, type: runeType });
                   ui.notifications.info(`Dispelled ${runeData.rune.name}!`);
                 },
                 icon: '<i class="fa-solid fa-trash"></i>',

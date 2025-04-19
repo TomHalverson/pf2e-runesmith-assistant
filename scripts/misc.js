@@ -1,3 +1,5 @@
+import { MODULE_ID } from "./module.js";
+
 /**
  * Gets the effect Link strings from inside
  * @param {string} description Description of the item to extract effects from
@@ -38,6 +40,16 @@ export function getMaxEtchedRunes(actor) {
  */
 export function hasFeat(actor, slug) {
   return actor.itemTypes.feat.some((feat) => feat.slug === slug);
+}
+
+/**
+ * Localizes String
+ * @param {string} str String to localize
+ * @param {Object} options Extra options for localization
+ * @returns {string} localized string
+ */
+export function localize(str, options = {}) {
+  return game.i18n.format(`${MODULE_ID}.${str}`, options);
 }
 
 /**
@@ -124,7 +136,7 @@ export async function createRuneTraceEffect({
           item ?? ""
         }`
       ),
-    }
+    },
   };
   const act = object ? token.actor : tokenSRC?.actor;
   const effects = await act.createEmbeddedDocuments("Item", [effectData], {
