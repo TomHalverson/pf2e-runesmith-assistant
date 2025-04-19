@@ -1,4 +1,9 @@
+## 0.2.1
+
+- Updated manifest to not ask for the `css` file
+
 ## 0.2.0 - Beta
+
 - `Features`
   - `Character Sheet, Rune Management`
     - Allows you to see applied runes in your character sheet on the `Actions -> Encounter` tab
