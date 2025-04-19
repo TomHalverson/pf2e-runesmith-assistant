@@ -1,4 +1,4 @@
-import { getAllowedTokenName } from "./targetDialog";
+import { getAllowedTokenName } from "./targetDialog.js";
 
 /**
  * Creates a rune Apply Message
@@ -47,7 +47,7 @@ export async function runeAppliedMessage({
 }
 
 function applyMessageHelper({ rune, target, type }) {
-  const action = type === "etched" ? "Etched" : "Traced";
+  //const action = type === "etched" ? "Etched" : "Traced";
   let targetText = "";
 
   if (target.type === "object") {
@@ -61,7 +61,7 @@ function applyMessageHelper({ rune, target, type }) {
     }
   }
 
-  return `${action} ${rune.link}${targetText}`;
+  return `${rune.link}${targetText}`;
 }
 
 export async function runeInvokedMessage({

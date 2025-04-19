@@ -1,3 +1,15 @@
+## 0.2.0 - Beta
+- `Features`
+  - `Character Sheet, Rune Management`
+    - Allows you to see applied runes in your character sheet on the `Actions -> Encounter` tab
+    - Allows for easy management of runes
+      - Left Click - Invoke
+      - Right Click - Dispel
+    - Adds easy access to the `Invoke Runes` Menu and the `Etch & Trace Menu` as buttons
+  - `Hover Highlighting`
+    - Adds token Highlighting when hovering applied `Etched` or `Traced` runes
+    - This works both in the character sheet rune management, but also in the `Invoke Runes` menu
+
 ## 0.1.0 - Alpha
 
 - Alpha release cause I figured it is in a usable enough state atm

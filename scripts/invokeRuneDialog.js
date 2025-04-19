@@ -40,8 +40,8 @@ async function pickDialog({ token }) {
         )}</i><hr>${
           rune.enriched_desc.replaceAll('"', "'") ?? rune.name
         }" data-tooltip-direction="UP"
-        data-rune-id="${runeData?.id}"
-        data-rune-type="etched">
+        data-rune-target='${JSON.stringify(runeData.target)}'
+        >
                             <input type="radio" name="etched" value="${
                               runeData?.id
                             }">
@@ -70,8 +70,8 @@ async function pickDialog({ token }) {
         runeData.target
       )}</i><hr><fieldset>${rune.enriched_desc.replaceAll('"', "'")}</fieldset>"
         data-tooltip-direction="UP"
-        data-rune-id="${runeData?.id}"
-        data-rune-type="traced">
+        data-rune-target='${JSON.stringify(runeData.target)}'
+        >
                 <input type="radio" name="song" value="${runeData?.id}">
                 <img src="${
                   rune.img
@@ -139,14 +139,11 @@ async function pickDialog({ token }) {
           icon: '<i class="fa-solid fa-trash"></i>',
         },
       },
-      activateListeners: async (html) => {
+      render: (html) => {
         // Rune image hover: highlight token
         html.find(".rune-item:not(.placeholder)").hover(
           function (event) {
-            const runeID = event.target.dataset.runeId;
-            const runeType = event.target.dataset.runeType;
-            const runeData = flags[runeType].find((r) => r.id === runeID);
-            const target = runeData.target;
+            const target = JSON.parse(event.target.dataset.runeTarget);
             if (target.type === "person" && target.token) {
               const token =
                 canvas.tokens.get(target.token) ||
@@ -160,10 +157,7 @@ async function pickDialog({ token }) {
           },
           function (event) {
             // Remove highlight when mouse leaves
-            const runeID = event.target.dataset.runeId;
-            const runeType = event.target.dataset.runeType;
-            const runeData = flags[runeType].find((r) => r.id === runeID);
-            const target = runeData.target;
+            const target = JSON.parse(event.target.dataset.runeTarget);
             if (target.type === "person" && target.token) {
               const token =
                 canvas.tokens.get(target.token) ||

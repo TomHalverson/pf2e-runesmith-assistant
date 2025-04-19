@@ -164,9 +164,9 @@ export function showDynamicForm() {
       // Delegated event handler for tokens
       tokenList.on("click", ".token-card", (ev) => {
         const tokenId = ev.currentTarget.dataset.tokenId;
-        const tok = availableTokens.find((t) => t.id === tokenId);
+        const token = availableTokens.find((t) => t.id === tokenId);
         formData.token = tokenId;
-        formData.actor = tok?.actor?.id;
+        formData.actor = token?.actor?.id;
         formData.personName = getAllowedTokenName(token);
         html.find(".token-card").removeClass("selected");
         ev.currentTarget.classList.add("selected");
