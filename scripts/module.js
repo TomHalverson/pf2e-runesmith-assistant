@@ -4,7 +4,9 @@ import { setupSocket } from "./socket.js";
 
 export const MODULE_ID = "pf2e-runesmith-assistant";
 
-Hooks.once("init", async function () {});
+Hooks.once("init", async function () {
+  
+});
 
 Hooks.once("socketlib.ready", () => {
   if (!setupSocket())
