@@ -1,3 +1,9 @@
+## 0.2.3
+
+- Allow Invoking / Dispelling multiple runes at once
+- Set default of targetting UI to start on `token selection`
+- Targetting Dialog color for selection fixed a bit
+
 ## 0.2.2
 
 - Start of localization

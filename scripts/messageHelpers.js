@@ -90,7 +90,7 @@ export async function runeInvokedMessage({
   });
   await ChatMessage.create({
     author: game.user.id,
-    content: `<b>${rune.link}</b> <i>on ${targetDescription(
+    content: `<b>${rune?.link}</b> <i>on ${targetDescription(
       target
     )}</i><hr><fieldset>${enrichedDescription}</fieldset>`,
     speaker: ChatMessage.getSpeaker({
@@ -106,7 +106,7 @@ export async function runeInvokedMessage({
       pf2e: {
         origin: {
           sourceId: actor.id,
-          uuid: rune.uuid,
+          uuid: rune?.uuid,
           type: "equipment",
         },
       },

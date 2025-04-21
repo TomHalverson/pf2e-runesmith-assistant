@@ -9,9 +9,13 @@ export async function invokeRuneDialog() {
   console.log({ res });
 
   if (res?.action === "dispel") {
-    dispelRune({ token, runeID: res.id, type: res.type });
+    for (let sel of res.selected) {
+      await dispelRune({ token, runeID: sel.id, type: sel.type });
+    }
   } else if (res?.action === "invoke") {
-    invokeRune({ token, runeID: res.id, type: res.type });
+    for (let sel of res.selected) {
+      await invokeRune({ token, runeID: sel.id, type: sel.type });
+    }
   }
 }
 
@@ -55,26 +59,24 @@ async function pickDialog({ token }) {
       if (rune) {
         html += `<label class="rune-label rune-item${
           runeData?.id ? "" : " placeholder"
-        }" data-tooltip="<i>Applied to ${targetDescription(
-          runeData.target
-        ).replaceAll('"', "'")}</i><hr>${
+        }"
+          data-tooltip="<i>Applied to ${targetDescription(
+            runeData.target
+          ).replaceAll('"', "'")}</i><hr>${
           enrichedDescriptions[rune.id].replaceAll('"', "'") ?? rune.name
-        }" data-tooltip-direction="UP"
-        data-rune-target='${JSON.stringify(runeData.target)}'
-        >
-                            <input type="radio" name="etched" value="${
-                              runeData?.id
-                            }">
-                            <img src="${
-                              rune.img
-                            }" style="width:50px;height:50px;">
-                            <span class="rune-name">${rune.name}</span>
-                         </label>`;
+        }"
+          data-tooltip-direction="UP"
+          data-rune-target='${JSON.stringify(runeData.target)}'
+          >
+            <input type="checkbox" name="etched" value="${runeData?.id}">
+            <img src="${rune.img}" style="width:50px;height:50px;">
+            <span class="rune-name">${rune.name}</span>
+        </label>`;
       } else {
         html += `<span class="rune-icon temp" data-tooltip="Empty Rune Slot" data-tooltip-direction="UP">
-                            <img src="${EMPTY_RUNE_ART}" style="width:50px;height:50px;opacity:0.3;">
-                            <span class="rune-name" style="opacity:0.5;">Empty</span>
-                         </span>`;
+              <img src="${EMPTY_RUNE_ART}" style="width:50px;height:50px;opacity:0.3;">
+              <span class="rune-name" style="opacity:0.5;">Empty</span>
+           </span>`;
       }
     }
     html += `</div></div>`;
@@ -88,19 +90,18 @@ async function pickDialog({ token }) {
       let rune = runeData?.rune;
       html += `<label class="radio-label rune-item" data-tooltip="<i>Applied to ${targetDescription(
         runeData.target
-      ).replaceAll('"', "'")}</i><hr><fieldset>${enrichedDescriptions[rune.id].replaceAll(
-        '"',
-        "'"
-      )}</fieldset>"
+      ).replaceAll('"', "'")}</i><hr><fieldset>${enrichedDescriptions[
+        rune.id
+      ].replaceAll('"', "'")}</fieldset>"
         data-tooltip-direction="UP"
         data-rune-target='${JSON.stringify(runeData.target)}'
         >
-                <input type="radio" name="song" value="${runeData?.id}">
-                <img src="${
-                  rune.img
-                }" style="border:0px; width: 50px; height:50px;">
-                <span class="rune-name">${rune.name}</span>
-            </label>`;
+            <input type="checkbox" name="traced" value="${runeData?.id}">
+            <img src="${
+              rune.img
+            }" style="border:0px; width: 50px; height:50px;">
+            <span class="rune-name">${rune.name}</span>
+        </label>`;
     }
     html += `</div></div>`;
     return html;
@@ -119,6 +120,8 @@ async function pickDialog({ token }) {
         .rune-icon { display: flex; flex-direction: column; align-items: center; min-width: 80px; }
         .rune-icon.temp img { opacity: 0.3; }
         [name="etched"]:checked + img, [name="song"]:checked + img { outline: 2px solid #f00; }
+        [name="etched"]:checked + img, [name="traced"]:checked + img { outline: 2px solid #f00; }
+        [name="etched"]:checked + img, [name="etched"]:checked + img { outline: 2px solid #f00; }
         hr { margin: 16px 0; }
     </style>
     <form class="songpicker">
@@ -137,27 +140,37 @@ async function pickDialog({ token }) {
         Invoke: {
           label: `<span class="pf2-icon">1</span> Invoke`,
           callback: async (html) => {
-            // Check both radio groups for selection
-            let etchedId = $(
-              "input[type='radio'][name='etched']:checked"
-            ).val();
-            let tracedId = $("input[type='radio'][name='song']:checked").val();
-            let itemId = etchedId || tracedId;
-            const type = etchedId ? "etched" : "traced";
-            if (itemId) resolve({ id: itemId, type, action: "invoke" });
+            // Collect all checked checkboxes for both types
+            let etchedIds = Array.from(
+              html.find("input[type='checkbox'][name='etched']:checked")
+            ).map((e) => e.value);
+            let tracedIds = Array.from(
+              html.find("input[type='checkbox'][name='traced']:checked")
+            ).map((e) => e.value);
+
+            // Compose result: array of {id, type}
+            let selected = [
+              ...etchedIds.map((id) => ({ id, type: "etched" })),
+              ...tracedIds.map((id) => ({ id, type: "traced" })),
+            ];
+            if (selected.length) resolve({ selected, action: "invoke" });
           },
           icon: '<i class="fa-solid fa-hand-holding-magic"></i>',
         },
         Dispel: {
           label: `Dispel`,
           callback: async (html) => {
-            let etchedId = $(
-              "input[type='radio'][name='etched']:checked"
-            ).val();
-            let tracedId = $("input[type='radio'][name='song']:checked").val();
-            let itemId = etchedId || tracedId;
-            const type = etchedId ? "etched" : "traced";
-            if (itemId) resolve({ id: itemId, type, action: "dispel" });
+            let etchedIds = Array.from(
+              html.find("input[type='checkbox'][name='etched']:checked")
+            ).map((e) => e.value);
+            let tracedIds = Array.from(
+              html.find("input[type='checkbox'][name='traced']:checked")
+            ).map((e) => e.value);
+            let selected = [
+              ...etchedIds.map((id) => ({ id, type: "etched" })),
+              ...tracedIds.map((id) => ({ id, type: "traced" })),
+            ];
+            if (selected.length) resolve({ selected, action: "dispel" });
           },
           icon: '<i class="fa-solid fa-trash"></i>',
         },
@@ -235,14 +248,14 @@ export async function invokeRune({ token, act, runeID, type }) {
   const target = flagData.target;
   console.log({ flagData });
   const rune = await fromUuid(flagData.rune.uuid);
-  const invocation = getInvocation(rune.description);
+  const invocation = getInvocation(rune?.description ?? "Rune has been removed from your inventory so it has no result");
 
   const traits = [
     ...new Set([
       "invocation",
       "magical",
       "runesmith",
-      ...rune.traits.toObject(),
+      ...(rune?.traits ? rune.traits.toObject() : []),
       ...invocation.traits,
     ]),
   ];

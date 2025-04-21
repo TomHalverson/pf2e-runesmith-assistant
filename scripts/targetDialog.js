@@ -24,8 +24,8 @@ export function showDynamicTargetForm() {
               text-align: center;
             }
             .option-button.active {
-              background: #FFD700;
-              border-color: #FFD700;
+              background: rgb(234, 74, 114, 0.5);
+              border-color: rgb(234 74 114);
               font-weight: bold;
             }
             .token-selector {
@@ -44,8 +44,8 @@ export function showDynamicTargetForm() {
               border-radius: 3px;
             }
             .token-card.selected {
-              border-color: #FFD700;
-              background: rgba(255,215,0,0.1);
+              border-color: rgb(234 74 114);
+              background: rgb(234, 74, 114, 0.1);
             }
             .token-card img {
               width: 60px;
@@ -67,7 +67,7 @@ export function showDynamicTargetForm() {
             <input type="text" id="objectName" placeholder="Enter object name">
           </div>
   
-          <div class="form-section hidden" id="token-section">
+          <div class="form-section" id="token-section">
             <h3>Select Token</h3>
             <div class="token-selector" id="token-list"></div>
           </div>
@@ -100,6 +100,13 @@ export function showDynamicTargetForm() {
           },
         },
         render: (html) => {
+          //Setup new Default
+          html
+            .find('#type-section .option-button[data-type="person"]')
+            .addClass("active");
+          html.find("#token-section").removeClass("hidden");
+          loadTokens(html);
+
           // Type selection
           html.find("#type-section .option-button").click((ev) => {
             formData.type = ev.currentTarget.dataset.type;
@@ -172,6 +179,12 @@ export function showDynamicTargetForm() {
         html.find(".token-card").removeClass("selected");
         ev.currentTarget.classList.add("selected");
         html.find("#location-section").removeClass("hidden");
+        if (!formData.location) {
+          formData.location = "actor";
+          html
+            .find('#location-section .option-button[data-location="actor"]')
+            .addClass("active");
+        }
       });
     }
   });
