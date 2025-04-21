@@ -1,8 +1,27 @@
 {
-    "I18N.LANGUAGE": "English",
-    "pf2e-runesmith-automation": {
-        "ui": {
-            "header": "Rune Management"
-        }
+  "I18N.LANGUAGE": "English",
+  "pf2e-runesmith-assistant": {
+    "ui": {
+      "header": "Rune Management"
+    },
+    "message": {
+      "invoke": {
+        "rune": "Invoke Rune"
+      },
+      "apply": {
+        "etched": {
+          "rune": "Etch Rune"
+        },
+        "traced": {
+          "rune": "Trace Rune{distance}",
+          "ft": "{distance} ft."
+        },
+        "onto": "onto",
+        "'s": "'s"
+      },
+      "target": {
+        "an-object": "an Object"
+      }
     }
+  }
 }

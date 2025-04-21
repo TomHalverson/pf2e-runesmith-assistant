@@ -1,3 +1,10 @@
+## 0.2.2
+
+- Start of localization
+- Fixed error with applying and deleting effects when not testing as GM
+- Make effect icons appear on tokens
+- Handled case where as a rune is removed from a character's repertoire (inventory) while they still have it etched
+
 ## 0.2.1
 
 - Updated manifest to not ask for the `css` file

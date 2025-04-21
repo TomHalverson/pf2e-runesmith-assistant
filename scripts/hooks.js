@@ -49,6 +49,7 @@ export function setupHooks() {
 
       const enrichedPromises = unique_rune_ids.map(async (id) => {
         const r = actor.items.get(id);
+        if (!r) return [id, "Rune no longer exists on this character"];
         const enriched = await TextEditor.enrichHTML(r.description, {
           rollData,
           async: true,
@@ -71,7 +72,10 @@ export function setupHooks() {
         .map(
           (r) => `<img
                       src="${r.rune.img}" 
-                      data-tooltip="${runeTooltip(r, enrichedDescriptions[r.rune.id])}" 
+                      data-tooltip="${runeTooltip(
+                        r,
+                        enrichedDescriptions[r.rune.id]
+                      )}" 
                       data-tooltip-direction="UP" 
                       class="rune-img"
                       data-rune-id="${r.id}"
@@ -151,7 +155,7 @@ export function setupHooks() {
                                                 runeData.rune.link
                                               }</strong> on <i>${targetDescription(
               runeData.target
-            )}</i>?<hr>
+            ).replaceAll('"', "'")}</i>?<hr>
                                               <fieldset>${
                                                 enrichedDescriptions[
                                                   runeData.rune.id
@@ -194,7 +198,7 @@ export function setupHooks() {
                                                 runeData.rune.link
                                               }</strong> on <i>${targetDescription(
               runeData.target
-            )}</i>?<hr>
+            ).replaceAll('"', "'")}</i>?<hr>
                                               <fieldset>${
                                                 enrichedDescriptions[
                                                   runeData.rune.id

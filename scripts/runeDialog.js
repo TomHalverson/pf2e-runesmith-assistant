@@ -1,7 +1,7 @@
 import { runeAppliedMessage } from "./messageHelpers.js";
 import { getEffects, getMaxEtchedRunes, getYourToken } from "./misc.js";
 import { MODULE_ID } from "./module.js";
-import { showDynamicForm } from "./targetDialog.js";
+import { showDynamicTargetForm } from "./targetDialog.js";
 
 export async function runeEtchTraceDialog() {
   const token = getYourToken();
@@ -164,7 +164,7 @@ async function pickDialog({ runes, actor, token }) {
  *
  */
 async function addRune(rune, { actor, token, type = "etched", action = 0 }) {
-  const target = await showDynamicForm();
+  const target = await showDynamicTargetForm();
   let runes = actor.getFlag(MODULE_ID, "runes");
   const id = foundry.utils.randomID();
 
@@ -181,9 +181,13 @@ async function addRune(rune, { actor, token, type = "etched", action = 0 }) {
     id,
   });
 
-  socketlib.modules
-    .get(MODULE_ID)
-    .executeAsGM("createEffect", { rune, target, token, actor, id, type });
+  game.pf2eRunesmithAssistant.socket.executeAsGM("createEffect", {
+    rune,
+    target,
+    tokenID: token.id,
+    id,
+    type,
+  });
   await actor.setFlag(MODULE_ID, "runes", runes);
-  runeAppliedMessage({ actor, token, rune, target, type, action });
+  await runeAppliedMessage({ actor, token, rune, target, type, action });
 }

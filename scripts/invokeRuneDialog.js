@@ -26,6 +26,26 @@ async function pickDialog({ token }) {
   }
   const MAX_ETCHED = getMaxEtchedRunes(token.actor);
 
+  const unique_rune_ids = [
+    ...new Set([
+      ...etched.map((e) => e.rune.id),
+      ...traced.map((t) => t.rune.id),
+    ]),
+  ];
+  const rollData = token?.actor.getRollData();
+
+  const enrichedPromises = unique_rune_ids.map(async (id) => {
+    const r = token?.actor.items.get(id);
+    if (!r) return [id, "Rune no longer exists on this character"];
+    const enriched = await TextEditor.enrichHTML(r.description, {
+      rollData,
+      async: true,
+    });
+    return [id, enriched.replaceAll('"', "'")];
+  });
+  const enrichedPairs = await Promise.all(enrichedPromises);
+  const enrichedDescriptions = Object.fromEntries(enrichedPairs);
+
   // Helper to render etched runes as selectable, with names below
   function renderEtchedRunes(runes, max, label) {
     let html = `<div class="rune-section"><div class="rune-label">${label}</div><div class="form-group">`;
@@ -37,8 +57,8 @@ async function pickDialog({ token }) {
           runeData?.id ? "" : " placeholder"
         }" data-tooltip="<i>Applied to ${targetDescription(
           runeData.target
-        )}</i><hr>${
-          rune.enriched_desc.replaceAll('"', "'") ?? rune.name
+        ).replaceAll('"', "'")}</i><hr>${
+          enrichedDescriptions[rune.id].replaceAll('"', "'") ?? rune.name
         }" data-tooltip-direction="UP"
         data-rune-target='${JSON.stringify(runeData.target)}'
         >
@@ -68,7 +88,10 @@ async function pickDialog({ token }) {
       let rune = runeData?.rune;
       html += `<label class="radio-label rune-item" data-tooltip="<i>Applied to ${targetDescription(
         runeData.target
-      )}</i><hr><fieldset>${rune.enriched_desc.replaceAll('"', "'")}</fieldset>"
+      ).replaceAll('"', "'")}</i><hr><fieldset>${enrichedDescriptions[rune.id].replaceAll(
+        '"',
+        "'"
+      )}</fieldset>"
         data-tooltip-direction="UP"
         data-rune-target='${JSON.stringify(runeData.target)}'
         >
@@ -189,9 +212,11 @@ export async function dispelRune({ token, act, runeID, type }) {
   const { target } = flag[type].find((r) => r.id === runeID);
   flag[type] = flag?.[type]?.filter((r) => r.id !== runeID);
   await actor.setFlag(MODULE_ID, "runes", flag);
-  socketlib.modules
-    .get(MODULE_ID)
-    .executeAsGM("deleteEffect", { id: runeID, target, srcToken: token });
+  game.pf2eRunesmithAssistant.socket.executeAsGM("deleteEffect", {
+    id: runeID,
+    target,
+    srcToken: token.id,
+  });
 }
 
 /**
@@ -234,9 +259,11 @@ export async function invokeRune({ token, act, runeID, type }) {
     invocation: invocation.desc,
   });
 
-  socketlib.modules
-    .get(MODULE_ID)
-    .executeAsGM("deleteEffect", { id: runeID, target, srcToken: token });
+  game.pf2eRunesmithAssistant.socket.executeAsGM("deleteEffect", {
+    id: runeID,
+    target,
+    srcToken: token.id,
+  });
 }
 
 const STRICT_INVOCATION_REGEX =

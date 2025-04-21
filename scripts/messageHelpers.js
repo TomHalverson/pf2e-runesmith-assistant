@@ -1,3 +1,4 @@
+import { localize } from "./misc.js";
 import { getAllowedTokenName } from "./targetDialog.js";
 
 /**
@@ -18,7 +19,10 @@ export async function runeAppliedMessage({
   type,
   action,
 }) {
-  const traceDistance = action === "2" ? " (30 ft.)" : "";
+  const traceDistance =
+    action === "2"
+      ? ` (${localize("message.apply.traced.ft", { distance: 30 })})`
+      : "";
   await ChatMessage.create({
     author: game.user.id,
     content: applyMessageHelper({ rune, target, type }),
@@ -31,7 +35,7 @@ export async function runeAppliedMessage({
         type === "etched"
           ? ["exploration"]
           : ["concentrate", "magical", "manipulate", "runesmith"],
-      name: type === "etched" ? `Etch Rune` : `Trace Rune ${traceDistance}`,
+      name: localize(`message.apply.${type}.rune`, { distance: traceDistance }),
       glyph: type === "etched" ? "" : action,
     }),
     flags: {
@@ -51,13 +55,21 @@ function applyMessageHelper({ rune, target, type }) {
   let targetText = "";
 
   if (target.type === "object") {
-    targetText = ` onto <b><u>${target.object}</u></b>`;
+    targetText = ` ${localize("message.apply.onto")} <b><u>${
+      target.object
+    }</u></b>`;
   } else if (target.type === "person") {
     const tokenName = getAllowedTokenName(canvas.tokens.get(target?.token));
     if (target?.location === "actor") {
-      targetText = ` onto <b><u>${tokenName}</u></b>`;
+      targetText = ` ${localize(
+        "message.apply.onto"
+      )} <b><u>${tokenName}</u></b>`;
     } else if (target?.location === "item") {
-      targetText = ` onto <u><b>${tokenName}</b>'s <b>${target.item}</b></u>`;
+      targetText = ` ${localize(
+        "message.apply.onto"
+      )} <u><b>${tokenName}</b>${localize("message.apply.'s")} <b>${
+        target.item
+      }</b></u>`;
     }
   }
 
@@ -87,7 +99,7 @@ export async function runeInvokedMessage({
     }),
     flavor: await getMessageFlavor({
       traits: traits,
-      name: "Invoke Rune",
+      name: localize("message.invoke.rune"),
       glyph: "1",
     }),
     flags: {
@@ -125,7 +137,7 @@ async function getMessageFlavor({
 
 export function targetDescription(target) {
   if (target.type === "object") {
-    return target?.object || "an Object";
+    return target?.object || localize("message.target.an-object");
   } else {
     const token =
       canvas.tokens.get(target.token) ||

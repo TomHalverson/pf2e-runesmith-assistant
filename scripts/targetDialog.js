@@ -1,4 +1,4 @@
-export function showDynamicForm() {
+export function showDynamicTargetForm() {
   const formData = {
     type: null,
     item: null,
@@ -168,6 +168,7 @@ export function showDynamicForm() {
         formData.token = tokenId;
         formData.actor = token?.actor?.id;
         formData.personName = getAllowedTokenName(token);
+        formData.img = getTokenImage(token);
         html.find(".token-card").removeClass("selected");
         ev.currentTarget.classList.add("selected");
         html.find("#location-section").removeClass("hidden");
