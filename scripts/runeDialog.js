@@ -155,6 +155,16 @@ async function pickDialog({ runes, actor, token }) {
           icon: '<i class="fa-solid fa-pencil"></i>',
         },
       },
+      render: (html) => {
+        // Attach right-click listener to rune images
+        html.find(".radio-label img").on("contextmenu", async function (event) {
+          event.preventDefault();
+          const runeId = $(this).closest("label").find("input[type=radio]").val();
+          const runeObj = runes.find((s) => s.id === runeId);
+          // Call addRune with free: true
+          await addRune(runeObj, { actor, token, type: "etched", free: true });
+          resolve(runeId); // Optionally resolve the promise
+        })
     }).render(true, { width: 700 });
   });
   return image;
@@ -163,14 +173,14 @@ async function pickDialog({ runes, actor, token }) {
 /**
  *
  */
-async function addRune(rune, { actor, token, type = "etched", action = 0 }) {
+async function addRune(rune, { actor, token, type = "etched", action = 0, free }) {
   const target = await showDynamicTargetForm();
   let runes = actor.getFlag(MODULE_ID, "runes");
   const id = foundry.utils.randomID();
 
   if (type === "etched") {
     const maxEtchedRunes = getMaxEtchedRunes(token.actor);
-    if (runes.etched.length >= maxEtchedRunes) {
+    if (runes.etched.filter((r) => !r.free).length >= maxEtchedRunes) {
       runes.etched.pop();
     }
   }
@@ -179,9 +189,10 @@ async function addRune(rune, { actor, token, type = "etched", action = 0 }) {
     rune,
     target,
     id,
+    ...(free && {free})
   });
 
-  game.pf2eRunesmithAssistant.socket.executeAsGM("createEffect", {
+  game.pf2eRunesmithAssistant.socket.executeAsGM("createTraceEffect", {
     rune,
     target,
     tokenID: token.id,

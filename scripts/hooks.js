@@ -64,11 +64,18 @@ export function setupHooks() {
       const MAX_ETCHED = getMaxEtchedRunes(actor);
 
       // Build Etched Runes section (with placeholders)
+      // Split runes
+      const regularEtched = etched.filter((r) => !r.free);
+      const freeEtched = etched.filter((r) => r.free);
+
+      // Calculate empty slots (based on regularEtched only)
+      const emptyCount = Math.max(0, MAX_ETCHED - regularEtched.length);
+
       let etchedHtml = `
   <div class="runes-section etched-runes">
     <label><strong>Etched Runes</strong></label>
     <div class="runes-row">
-      ${etched
+      ${regularEtched
         .map(
           (r) => `<img
                       src="${r.rune.img}" 
@@ -83,7 +90,7 @@ export function setupHooks() {
                       style="width:32px;height:32px;margin:2px;">`
         )
         .join("")}
-      ${Array.from({ length: MAX_ETCHED - etched.length })
+      ${Array.from({ length: emptyCount })
         .map(
           () => `<img
                     src="${EMPTY_RUNE_ART}"
@@ -91,6 +98,21 @@ export function setupHooks() {
                     class="rune-img placeholder"
                     style="width:32px;height:32px;opacity:0.3;margin:2px;"
                   >`
+        )
+        .join("")}
+      ${freeEtched
+        .map(
+          (r) => `<img
+                      src="${r.rune.img}" 
+                      data-tooltip="${runeTooltip(
+                        r,
+                        enrichedDescriptions[r.rune.id]
+                      )}" 
+                      data-tooltip-direction="UP" 
+                      class="rune-img"
+                      data-rune-id="${r.id}"
+                      data-rune-type="etched"
+                      style="width:32px;height:32px;margin:2px;">`
         )
         .join("")}
     </div>
@@ -283,4 +305,14 @@ export function setupHooks() {
       }
     }
   });
+
+  if (game.modules.get("pf2e-dailies")?.active) {
+    game.modules
+      .get("pf2e-dailies")
+      ?.api?.registerCustomDailies(CUSTOM_DAILIES);
+  } else {
+    Hooks.on("pf2e.restForTheNight", async (actor) => {
+      // Handle "Daily Prep" stuff here if no Pf2e Dailies Module
+    });
+  }
 }

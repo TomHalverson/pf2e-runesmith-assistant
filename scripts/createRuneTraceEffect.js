@@ -7,10 +7,10 @@ export async function createRuneTraceEffect({
 }) {
   const { name, img, enriched_desc } = rune;
 
-  const tokenSRC = canvas.tokens.get(target?.token);
-  const token = canvas.tokens.get(tokenID);
+  const targetToken = canvas.tokens.get(target?.token);
+  const tokenSource = canvas.tokens.get(tokenID);
 
-  const person = target?.token ? tokenSRC?.name : null;
+  const person = target?.token ? targetToken?.name : null;
   const object = target?.object;
   const item = target?.item;
 
@@ -49,13 +49,13 @@ export async function createRuneTraceEffect({
             uuid: effectUUID,
           })),
       level: {
-        value: tokenSRC?.actor?.level ?? 1,
+        value: tokenSource?.actor?.level ?? 1,
       },
       flags: {
         "pf2e-runesmith-assistant": {
           source: {
             id,
-            actorUUID: token.actor.uuid,
+            actorUUID: tokenSource.actor.uuid,
             type,
           },
         },
@@ -71,10 +71,35 @@ export async function createRuneTraceEffect({
       ),
     },
   };
-  const act = object ? token.actor : tokenSRC?.actor;
+  const act = object ? tokenSource.actor : targetToken?.actor;
   const effects = await act.createEmbeddedDocuments("Item", [effectData], {
-    parent: token.actor,
+    parent: tokenSource.actor,
   });
   console.log({ effects });
+  return effects;
+}
+
+export async function createEffect({ tokenID, targetID, effectData }) {
+  const tokenSource = canvas.tokens.get(tokenID);
+  const targetToken = canvas.tokens.get(targetID);
+  const act = object ? tokenSource.actor : targetToken?.actor;
+
+  const effects = await act.createEmbeddedDocuments(
+    "Item",
+    [
+      {
+        ...effectData,
+        system: {
+          ...effectData?.system,
+          level: {
+            value: tokenSource?.actor?.level ?? 1,
+          },
+        },
+      },
+    ],
+    {
+      parent: targetToken.actor,
+    }
+  );
   return effects;
 }

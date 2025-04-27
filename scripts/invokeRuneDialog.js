@@ -1,4 +1,5 @@
 import { EMPTY_RUNE_ART } from "./const.js";
+import { handleSpecificRunes } from "./handleSpecificRunes.js";
 import { runeInvokedMessage, targetDescription } from "./messageHelpers.js";
 import { getMaxEtchedRunes, getYourToken } from "./misc.js";
 import { MODULE_ID } from "./module.js";
@@ -53,32 +54,73 @@ async function pickDialog({ token }) {
   // Helper to render etched runes as selectable, with names below
   function renderEtchedRunes(runes, max, label) {
     let html = `<div class="rune-section"><div class="rune-label">${label}</div><div class="form-group">`;
+
+    // Separate runes
+    let regularRunes = [];
+    let emptySlots = [];
+    let freeRunes = [];
+
     for (let i = 0; i < max; i++) {
       let runeData = runes[i];
-      let rune = runeData?.rune;
-      if (rune) {
-        html += `<label class="rune-label rune-item${
-          runeData?.id ? "" : " placeholder"
-        }"
-          data-tooltip="<i>Applied to ${targetDescription(
-            runeData.target
-          ).replaceAll('"', "'")}</i><hr>${
-          enrichedDescriptions[rune.id].replaceAll('"', "'") ?? rune.name
-        }"
-          data-tooltip-direction="UP"
-          data-rune-target='${JSON.stringify(runeData.target)}'
-          >
-            <input type="checkbox" name="etched" value="${runeData?.id}">
-            <img src="${rune.img}" style="width:50px;height:50px;">
-            <span class="rune-name">${rune.name}</span>
-        </label>`;
+      if (runeData?.rune) {
+        if (runeData.free) {
+          freeRunes.push(runeData);
+        } else {
+          regularRunes.push(runeData);
+        }
       } else {
-        html += `<span class="rune-icon temp" data-tooltip="Empty Rune Slot" data-tooltip-direction="UP">
-              <img src="${EMPTY_RUNE_ART}" style="width:50px;height:50px;opacity:0.3;">
-              <span class="rune-name" style="opacity:0.5;">Empty</span>
-           </span>`;
+        emptySlots.push(null); // Just a placeholder for empty slot
       }
     }
+
+    // Render regular runes
+    for (let runeData of regularRunes) {
+      let rune = runeData.rune;
+      html += `<label class="rune-label rune-item${
+        runeData?.id ? "" : " placeholder"
+      }"
+        data-tooltip="<i>Applied to ${targetDescription(
+          runeData.target
+        ).replaceAll('"', "'")}</i><hr>${
+        enrichedDescriptions[rune.id].replaceAll('"', "'") ?? rune.name
+      }"
+        data-tooltip-direction="UP"
+        data-rune-target='${JSON.stringify(runeData.target)}'
+        >
+          <input type="checkbox" name="etched" value="${runeData?.id}">
+          <img src="${rune.img}" style="width:50px;height:50px;">
+          <span class="rune-name">${rune.name}</span>
+      </label>`;
+    }
+
+    // Render empty slots
+    for (let _ of emptySlots) {
+      html += `<span class="rune-icon temp" data-tooltip="Empty Rune Slot" data-tooltip-direction="UP">
+          <img src="${EMPTY_RUNE_ART}" style="width:50px;height:50px;opacity:0.3;">
+          <span class="rune-name" style="opacity:0.5;">Empty</span>
+        </span>`;
+    }
+
+    // Render free runes at the end
+    for (let runeData of freeRunes) {
+      let rune = runeData.rune;
+      html += `<label class="rune-label rune-item${
+        runeData?.id ? "" : " placeholder"
+      }"
+        data-tooltip="<i>Applied to ${targetDescription(
+          runeData.target
+        ).replaceAll('"', "'")}</i><hr>${
+        enrichedDescriptions[rune.id].replaceAll('"', "'") ?? rune.name
+      }"
+        data-tooltip-direction="UP"
+        data-rune-target='${JSON.stringify(runeData.target)}'
+        >
+          <input type="checkbox" name="etched" value="${runeData?.id}">
+          <img src="${rune.img}" style="width:50px;height:50px;">
+          <span class="rune-name">${rune.name}</span>
+      </label>`;
+    }
+
     html += `</div></div>`;
     return html;
   }
@@ -248,7 +290,10 @@ export async function invokeRune({ token, act, runeID, type }) {
   const target = flagData.target;
   console.log({ flagData });
   const rune = await fromUuid(flagData.rune.uuid);
-  const invocation = getInvocation(rune?.description ?? "Rune has been removed from your inventory so it has no result");
+  const invocation = getInvocation(
+    rune?.description ??
+      "Rune has been removed from your inventory so it has no result"
+  );
 
   const traits = [
     ...new Set([
@@ -272,6 +317,14 @@ export async function invokeRune({ token, act, runeID, type }) {
     invocation: invocation.desc,
   });
 
+  handleSpecificRunes({
+    id: runeID,
+    target,
+    srcToken: token.id,
+    type,
+    sourceID: rune?.sourceId,
+    invocation: invocation.desc,
+  });
   game.pf2eRunesmithAssistant.socket.executeAsGM("deleteEffect", {
     id: runeID,
     target,

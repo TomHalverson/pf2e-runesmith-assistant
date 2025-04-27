@@ -1,8 +1,8 @@
 import { deleteRuneEffect } from "./deleteEffect.js";
-import { createRuneTraceEffect } from "./createRuneTraceEffect.js";
+import { createEffect, createRuneTraceEffect } from "./createRuneTraceEffect.js";
 import { MODULE_ID } from "./module.js";
 
-async function createEffect(data) {
+async function createTraceEffect(data) {
   await createRuneTraceEffect(data);
 }
 async function deleteEffect(data) {
@@ -17,6 +17,7 @@ export const setupSocket = () => {
         socket: socketlib.registerModule(MODULE_ID),
       }
     );
+    game.pf2eRunesmithAssistant.socket.register("createTraceEffect", createTraceEffect);
     game.pf2eRunesmithAssistant.socket.register("createEffect", createEffect);
     game.pf2eRunesmithAssistant.socket.register("deleteEffect", deleteEffect);
   }
