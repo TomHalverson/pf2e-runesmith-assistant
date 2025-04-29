@@ -3,7 +3,7 @@ import { getEffects, getMaxEtchedRunes, getYourToken } from "./misc.js";
 import { MODULE_ID } from "./module.js";
 import { showDynamicTargetForm } from "./targetDialog.js";
 
-export async function runeEtchTraceDialog() {
+export async function runeEtchTraceDialog(options = {}) {
   const token = getYourToken();
   const actor = token.actor;
   const runesList = actor.items.contents.filter((it) =>
@@ -16,7 +16,7 @@ export async function runeEtchTraceDialog() {
 
   let runes = actor.getFlag(MODULE_ID, "runes");
 
-  console.log({ runesList, runes });
+  //console.log({ runesList, runes });
 
   if (!runes || Object.keys(runes).length === 0) {
     actor.setFlag(MODULE_ID, "runes", {
@@ -44,13 +44,13 @@ export async function runeEtchTraceDialog() {
       })
     )
   ).sort((a, b) => a.name.localeCompare(b.name));
-  console.log({ runeData });
+  //console.log({ runeData });
 
-  let res = await pickDialog({ runes: runeData, actor, token });
-  console.log({ res });
+  let res = await pickDialog({ runes: runeData, actor, token, options });
+  //console.log({ res });
 }
 
-async function pickDialog({ runes, actor, token }) {
+async function pickDialog({ runes, actor, token, options }) {
   let rune_content = ``;
 
   //Filter for songs
@@ -113,58 +113,67 @@ async function pickDialog({ runes, actor, token }) {
   `;
 
   let image = new Promise((resolve) => {
+    let buttons = {};
+
+    if (!options?.traceOnly) {
+      buttons.Etch = {
+        label: `Etch`,
+        callback: async (html) => {
+          let itemId = $("input[type='radio'][name='song']:checked").val();
+          addRune(
+            runes.find((s) => s.id === itemId),
+            { actor, token, type: "etched" }
+          );
+          resolve(itemId);
+        },
+        icon: '<i class="fa-solid fa-hammer-crash"></i>',
+      };
+    }
+
+    if (!options?.etchOnly) {
+      buttons.Trace = {
+        label: `<span class="pf2-icon">1</span> Trace`,
+        callback: async (html) => {
+          let itemId = $("input[type='radio'][name='song']:checked").val();
+          addRune(
+            runes.find((s) => s.id === itemId),
+            { actor, token, type: "traced", action: "1" }
+          );
+          resolve(itemId);
+        },
+        icon: '<i class="fa-solid fa-pencil"></i>',
+      };
+      buttons.Trace2Action = {
+        label: `<span class="pf2-icon">2</span> Trace (30 ft)`,
+        callback: async (html) => {
+          let itemId = $("input[type='radio'][name='song']:checked").val();
+          addRune(
+            runes.find((s) => s.id === itemId),
+            { actor, token, type: "traced", action: "2" }
+          );
+          resolve(itemId);
+        },
+        icon: '<i class="fa-solid fa-pencil"></i>',
+      };
+    }
     new Dialog({
       title: "Rune List",
       content,
-      buttons: {
-        Etch: {
-          label: `Etch`,
-          callback: async (html) => {
-            let itemId = $("input[type='radio'][name='song']:checked").val();
-            //actor.items.get(itemId).toMessage()
-            addRune(
-              runes.find((s) => s.id === itemId),
-              { actor, token, type: "etched" }
-            );
-            resolve(itemId);
-          },
-          icon: '<i class="fa-solid fa-hammer-crash"></i>',
-        },
-        Trace: {
-          label: `<span class="pf2-icon">1</span> Trace`,
-          callback: async (html) => {
-            let itemId = $("input[type='radio'][name='song']:checked").val();
-            addRune(
-              runes.find((s) => s.id === itemId),
-              { actor, token, type: "traced", action: "1" }
-            );
-            resolve(itemId);
-          },
-          icon: '<i class="fa-solid fa-pencil"></i>',
-        },
-        Trace2Action: {
-          label: `<span class="pf2-icon">2</span> Trace (30 ft)`,
-          callback: async (html) => {
-            let itemId = $("input[type='radio'][name='song']:checked").val();
-            addRune(
-              runes.find((s) => s.id === itemId),
-              { actor, token, type: "traced", action: "2" }
-            );
-            resolve(itemId);
-          },
-          icon: '<i class="fa-solid fa-pencil"></i>',
-        },
-      },
+      buttons,
       render: (html) => {
         // Attach right-click listener to rune images
         html.find(".radio-label img").on("contextmenu", async function (event) {
           event.preventDefault();
-          const runeId = $(this).closest("label").find("input[type=radio]").val();
+          const runeId = $(this)
+            .closest("label")
+            .find("input[type=radio]")
+            .val();
           const runeObj = runes.find((s) => s.id === runeId);
           // Call addRune with free: true
           await addRune(runeObj, { actor, token, type: "etched", free: true });
           resolve(runeId); // Optionally resolve the promise
-        })
+        });
+      },
     }).render(true, { width: 700 });
   });
   return image;
@@ -173,7 +182,10 @@ async function pickDialog({ runes, actor, token }) {
 /**
  *
  */
-async function addRune(rune, { actor, token, type = "etched", action = 0, free }) {
+async function addRune(
+  rune,
+  { actor, token, type = "etched", action = 0, free }
+) {
   const target = await showDynamicTargetForm();
   let runes = actor.getFlag(MODULE_ID, "runes");
   const id = foundry.utils.randomID();
@@ -189,7 +201,7 @@ async function addRune(rune, { actor, token, type = "etched", action = 0, free }
     rune,
     target,
     id,
-    ...(free && {free})
+    ...(free && { free }),
   });
 
   game.pf2eRunesmithAssistant.socket.executeAsGM("createTraceEffect", {

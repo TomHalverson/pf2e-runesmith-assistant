@@ -1,8 +1,14 @@
 import { EMPTY_RUNE_ART } from "./const.js";
-import { dispelRune, invokeRune } from "./invokeRuneDialog.js";
+import { chainOfWords } from "./handleSpecificActions.js";
+import {
+  dispelRune,
+  invokeRune,
+  invokeRuneDialog,
+} from "./invokeRuneDialog.js";
 import { targetDescription } from "./messageHelpers.js";
 import { getMaxEtchedRunes, hasFeat, isRunesmith } from "./misc.js";
 import { MODULE_ID } from "./module.js";
+import { runeEtchTraceDialog } from "./runeDialog.js";
 
 export function setupHooks() {
   Hooks.on("preDeleteItem", async (effect, _misc, _userID) => {
@@ -16,12 +22,9 @@ export function setupHooks() {
     const actor = await fromUuid(actorUUID);
     const flags = actor.getFlag(MODULE_ID, "runes");
     const rune = flags?.[type]?.find((r) => r.id === id);
+    flags[type] = flags?.[type]?.filter((r) => r.id !== id);
     if (rune) {
-      await actor.setFlag(
-        MODULE_ID,
-        "runes",
-        flags?.[type]?.filter((r) => r.id !== id)
-      );
+      await actor.setFlag(MODULE_ID, "runes", flags);
     }
   });
 
@@ -31,7 +34,7 @@ export function setupHooks() {
       character.owner &&
       (isRunesmith(actor) || hasFeat(actor, "runesmith-dedication"))
     ) {
-      console.log({ _sheet, html, character });
+      //console.log({ _sheet, html, character });
 
       const actor = _sheet.actor;
 
@@ -59,7 +62,7 @@ export function setupHooks() {
       const enrichedPairs = await Promise.all(enrichedPromises);
       const enrichedDescriptions = Object.fromEntries(enrichedPairs);
 
-      console.log(runes);
+      //console.log(runes);
 
       const MAX_ETCHED = getMaxEtchedRunes(actor);
 
@@ -112,7 +115,7 @@ export function setupHooks() {
                       class="rune-img"
                       data-rune-id="${r.id}"
                       data-rune-type="etched"
-                      style="width:32px;height:32px;margin:2px;">`
+                      style="width:32px;height:32px;margin:2px;box-shadow: 0 0 6px 2px rgba(128, 0, 255, 0.8);border-radius: 6px;">`
         )
         .join("")}
     </div>
@@ -306,13 +309,45 @@ export function setupHooks() {
     }
   });
 
-  if (game.modules.get("pf2e-dailies")?.active) {
-    game.modules
-      .get("pf2e-dailies")
-      ?.api?.registerCustomDailies(CUSTOM_DAILIES);
-  } else {
-    Hooks.on("pf2e.restForTheNight", async (actor) => {
-      // Handle "Daily Prep" stuff here if no Pf2e Dailies Module
-    });
-  }
+  // if (game.modules.get("pf2e-dailies")?.active) {
+  //   game.modules
+  //     .get("pf2e-dailies")
+  //     ?.api?.registerCustomDailies(CUSTOM_DAILIES);
+  // } else {
+  //   Hooks.on("pf2e.restForTheNight", async (actor) => {
+  //     // Handle "Daily Prep" stuff here if no Pf2e Dailies Module
+  //   });
+  // }
+
+  const MSG_ITEMS = {
+    "Chain of Words":
+      "Compendium.pf2e-playtest-data.impossible-playtest-class-feats.Item.nPSpd3Urs8YlROWO",
+    "Etch Rune":
+      "Compendium.pf2e-runesmith-assistant.pf2e-runesmith-assistant-items.Item.pK4dYJlztm6U1Izf",
+    "Trace Rune":
+      "Compendium.pf2e-playtest-data.impossible-playtest-actions.Item.wamCImlN6xwUHzyk",
+    "Invoke Rune":
+      "Compendium.pf2e-playtest-data.impossible-playtest-actions.Item.ozrq9hAuigjzwe9C",
+    "Fortifying Knock":
+      "Compendium.pf2e-playtest-data.impossible-playtest-class-feats.Item.lNHunxDc1vnmsPSH",
+  };
+
+  Hooks.on("createChatMessage", async function (msg, _status, userid) {
+    if (game.user.id !== userid) return;
+    switch (msg?.item?.sourceId) {
+      case MSG_ITEMS["Chain of Words"]:
+        await chainOfWords();
+        break;
+      case MSG_ITEMS["Etch Rune"]:
+        runeEtchTraceDialog({ etchOnly: true });
+        break;
+      case MSG_ITEMS["Trace Rune"]:
+      case MSG_ITEMS["Fortifying Knock"]:
+        runeEtchTraceDialog({ traceOnly: true });
+        break;
+      case MSG_ITEMS["Invoke Rune"]:
+        invokeRuneDialog();
+        break;
+    }
+  });
 }

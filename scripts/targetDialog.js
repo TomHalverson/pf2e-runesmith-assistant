@@ -175,7 +175,7 @@ export function showDynamicTargetForm() {
         formData.token = tokenId;
         formData.actor = token?.actor?.id;
         formData.personName = getAllowedTokenName(token);
-        formData.img = getTokenImage(token);
+        formData.img = getTokenImage(token?.object || token);
         html.find(".token-card").removeClass("selected");
         ev.currentTarget.classList.add("selected");
         html.find("#location-section").removeClass("hidden");

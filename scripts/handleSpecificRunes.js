@@ -1,50 +1,53 @@
+import { MODULE_ID } from "./module.js";
+
 const RUNES = {
   "holtrick-dwarven-ramparts":
-    "Compendium.pf2e-playtest-data.impossible-playtest-runes.Item.WCVwAFVojZeiw3Z3",
+    "Compendium.pf2e-playtest-data.impossible-playtest-runes.Item.azxAqh6vmhgK2dzR",
 };
 
 const RUNE_CHECK_LIST = Object.values(RUNES);
 
-export function handleSpecificRunes({
-  id,
-  target,
-  srcToken,
-  sourceID,
-  type,
-  invocation,
-}) {
-  if (!RUNE_CHECK_LIST.includes(sourceID)) return;
-  const actor = canvas.tokens.get(srcToken).actor;
-  const runes = actor.getFlag(MODULE_ID, "runes");
-  const rune = runes[type].find((r) => r.id === id);
+export function handleSpecificRunes({ rune, target, srcToken, invocation }) {
+  if (!RUNE_CHECK_LIST.includes(rune?.sourceId)) return;
+  const tokenSource = canvas.tokens.get(srcToken);
   const effectData = {
     type: "effect",
     name: `[Invoked] ${rune.name}`,
     img: rune.img,
     system: {
       tokenIcon: { show: true },
+      duration: {
+        value: 1,
+        unit: "rounds",
+        sustained: false,
+        expiry: "turn-end",
+      },
+      unidentified: false,
       traits: {
         custom: "",
         rarity: "common",
-        value: rune.traits,
+        value: rune?.traits?.toObject() ?? [],
       },
-      description: `<p>Granted by @UUID[${sourceID}]</p>${invocation}`,
+      description: {
+        value: `<p>Granted by @UUID[${rune?.sourceId}]</p>${invocation}`,
+      },
       level: {
         value: tokenSource?.actor?.level ?? 1,
       },
+      source: {
+        value: "created by PF2e Runesmith Assistant",
+      },
+      slug: game.pf2e.system.sluggify(`[Invoked] ${rune.name}`),
     },
-    source: {
-      value: "created by PF2e Runesmith Assistant",
-    },
-    slug: game.pf2e.system.sluggify(`[Invoked] ${rune.name}`),
   };
 
-  switch (sourceID) {
+  switch (rune?.sourceId) {
     case RUNES["holtrick-dwarven-ramparts"]:
       effectData.system.rules = getGrantItemRules([
         ITEMS["Effect: Holtrik, Rune of Dwarven Ramparts"],
         ITEMS["Effect: Raise a Shield"],
       ]);
+      effectData.system.duration.expiry = "turn-start";
       game.pf2eRunesmithAssistant.socket.executeAsGM("createEffect", {
         targetID: target.token,
         tokenID: srcToken,
@@ -62,11 +65,12 @@ const ITEMS = {
 };
 
 function getGrantItemRules(itemUUIDs) {
-  return rune.effects.map((effectUUID) => ({
+  return itemUUIDs.map((UUID) => ({
     key: "GrantItem",
-    onDeleteEffects: {
+    onDeleteActions: {
       grantee: "restrict",
     },
-    uuid: effectUUID,
+    allowDuplicate: true,
+    uuid: UUID,
   }));
 }

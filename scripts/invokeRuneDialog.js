@@ -7,7 +7,7 @@ import { MODULE_ID } from "./module.js";
 export async function invokeRuneDialog() {
   const token = getYourToken();
   const res = await pickDialog({ token });
-  console.log({ res });
+  //console.log({ res });
 
   if (res?.action === "dispel") {
     for (let sel of res.selected) {
@@ -141,7 +141,9 @@ async function pickDialog({ token }) {
             <input type="checkbox" name="traced" value="${runeData?.id}">
             <img src="${
               rune.img
-            }" style="border:0px; width: 50px; height:50px;">
+            }" style="border:0px; width: 50px; height:50px;" ${
+        runeData.free ? 'class="rune-purple-shadow"' : ""
+      }>
             <span class="rune-name">${rune.name}</span>
         </label>`;
     }
@@ -165,6 +167,7 @@ async function pickDialog({ token }) {
         [name="etched"]:checked + img, [name="traced"]:checked + img { outline: 2px solid #f00; }
         [name="etched"]:checked + img, [name="etched"]:checked + img { outline: 2px solid #f00; }
         hr { margin: 16px 0; }
+        .rune-purple-shadow { box-shadow: 0 0 6px 2px rgba(128, 0, 255, 0.8); border-radius: 6px; /* Optional: round corners to match images */ }
     </style>
     <form class="songpicker">
         ${renderEtchedRunes(etched, MAX_ETCHED, "Etched Runes")}
@@ -284,11 +287,13 @@ export async function dispelRune({ token, act, runeID, type }) {
  */
 export async function invokeRune({ token, act, runeID, type }) {
   const actor = token?.actor ?? act;
+  const tok =
+    token ?? canvas.tokens.placeables.find((t) => t.actor.id === actor.id);
   const flag = actor?.getFlag(MODULE_ID, "runes");
-  console.log({ flag, token, runeID, type });
+  //console.log({ flag, token: tok, runeID, type });
   const flagData = flag?.[type]?.find((r) => r.id === runeID);
   const target = flagData.target;
-  console.log({ flagData });
+  //console.log({ flagData });
   const rune = await fromUuid(flagData.rune.uuid);
   const invocation = getInvocation(
     rune?.description ??
@@ -306,10 +311,9 @@ export async function invokeRune({ token, act, runeID, type }) {
   ];
 
   flag[type] = flag?.[type]?.filter((r) => r.id !== runeID);
-  await actor.setFlag(MODULE_ID, "runes", flag);
 
   await runeInvokedMessage({
-    token,
+    token: tok,
     actor,
     rune,
     target,
@@ -318,25 +322,24 @@ export async function invokeRune({ token, act, runeID, type }) {
   });
 
   handleSpecificRunes({
-    id: runeID,
+    rune,
     target,
-    srcToken: token.id,
-    type,
-    sourceID: rune?.sourceId,
+    srcToken: tok.id,
     invocation: invocation.desc,
   });
   game.pf2eRunesmithAssistant.socket.executeAsGM("deleteEffect", {
     id: runeID,
     target,
-    srcToken: token.id,
+    srcToken: tok.id,
   });
+  await actor.setFlag(MODULE_ID, "runes", flag);
 }
 
 const STRICT_INVOCATION_REGEX =
   /<strong>Invocation<\/strong>(?:\s*\([^)]+\))?\s*([\s\S]*)/;
 const INVOCATION_TRAITS_REGEX = /<strong>Invocation<\/strong>\s*\(([^)]*)\)/;
 function getInvocation(description) {
-  console.log({ test: description.match(STRICT_INVOCATION_REGEX) });
+  //console.log({ test: description.match(STRICT_INVOCATION_REGEX) });
   const desc = description.match(STRICT_INVOCATION_REGEX)?.[1];
   const traits =
     description

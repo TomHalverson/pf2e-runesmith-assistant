@@ -9,6 +9,6 @@ export async function deleteRuneEffect({ id, target, srcTokenID }) {
   const effect = actor.items.contents.find(
     (i) => i?.system?.flags?.[MODULE_ID]?.source?.id === id
   );
-  console.log({ effect });
+  //console.log({ effect });
   return await effect?.delete();
 }

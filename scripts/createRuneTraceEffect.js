@@ -43,9 +43,10 @@ export async function createRuneTraceEffect({
         ? []
         : rune.effects.map((effectUUID) => ({
             key: "GrantItem",
-            onDeleteEffects: {
+            onDeleteActions: {
               grantee: "restrict",
             },
+            allowDuplicate: true,
             uuid: effectUUID,
           })),
       level: {
@@ -75,26 +76,19 @@ export async function createRuneTraceEffect({
   const effects = await act.createEmbeddedDocuments("Item", [effectData], {
     parent: tokenSource.actor,
   });
-  console.log({ effects });
+  //console.log({ effects });
   return effects;
 }
 
 export async function createEffect({ tokenID, targetID, effectData }) {
-  const tokenSource = canvas.tokens.get(tokenID);
   const targetToken = canvas.tokens.get(targetID);
-  const act = object ? tokenSource.actor : targetToken?.actor;
+  const act = targetToken?.actor;
 
   const effects = await act.createEmbeddedDocuments(
     "Item",
     [
       {
-        ...effectData,
-        system: {
-          ...effectData?.system,
-          level: {
-            value: tokenSource?.actor?.level ?? 1,
-          },
-        },
+        ...effectData
       },
     ],
     {

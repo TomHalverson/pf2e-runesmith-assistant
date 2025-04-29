@@ -1,3 +1,14 @@
+## 0.3.0
+- `Features`
+  - `Specific Rune Handling`
+    - Added specific handling for invoking the `Holtrick` rune
+  - `Free Etched Runes`
+    - When etching you can now right click the rune to etch it for free, it shows up at the end of the rune list and is highlighted in purple
+    - This is mostly the start of the workflow to handle `Runic Tattoo` feat
+- `Fixes`
+  - A rune expiring no longer clears out your runes
+  - Commented out most of the console logs
+- 
 ## 0.2.3
 
 - Allow Invoking / Dispelling multiple runes at once
