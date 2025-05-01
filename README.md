@@ -3,6 +3,7 @@
 ![Latest Release Download Count](https://img.shields.io/github/downloads/ChasarooniZ/pf2e-runesmith-assistant/latest/module.zip)
 
 ![module_banner](https://github.com/ChasarooniZ/pf2e-usage-updater/assets/79132112/3b2a4f8c-7ba1-4647-b073-d8ecac9d93a6)
+
 [![Kofi](https://img.shields.io/badge/Kofi-F16061.svg?logo=ko-fi&logoColor=white)](https://ko-fi.com/Chasarooni)
 
 <!--- Forge Bazaar Install % Badge -->
