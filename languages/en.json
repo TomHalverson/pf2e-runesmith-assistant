@@ -22,6 +22,12 @@
       "target": {
         "an-object": "an Object"
       }
+    },
+    "effect": {
+      "types": {
+        "traced": "Traced",
+        "etched": "Etched"
+      }
     }
   }
 }

@@ -72,10 +72,10 @@ export function showDynamicTargetForm() {
             <div class="token-selector" id="token-list"></div>
           </div>
   
-          <div class="form-section hidden" id="location-section">
+          <div class="form-section" id="location-section">
             <h3>Item Location</h3>
             <div class="option-row">
-              <div class="option-button" data-location="actor">On Person</div>
+              <div class="option-button active" data-location="actor">On Person</div>
               <div class="option-button" data-location="item">On Item</div>
             </div>
           </div>
@@ -154,15 +154,34 @@ export function showDynamicTargetForm() {
     function loadTokens(html) {
       let availableTokens = [];
       availableTokens = [
-        ...game.canvas.tokens.controlled,
-        ...game.user.targets.toObject(),
+        ...new Set([
+          ...game.canvas.tokens.placeables.filter(
+            (t) => t?.actor?.id === game?.user?.character?.id
+          ),
+          ...game.canvas.tokens.controlled,
+          ...game.user.targets.toObject(),
+        ]),
       ];
+      let preselectedToken = game.user.targets.first();
+      if (availableTokens.length === 1) {
+        preselectedToken = availableTokens[0];
+      }
+      formData.token = preselectedToken.id;
+      formData.actor = preselectedToken?.actor?.id;
+      formData.personName = getAllowedTokenName(preselectedToken);
+      formData.img = getTokenImage(
+        preselectedToken?.object || preselectedToken
+      );
+      formData.location = "actor";
+
       const tokenList = html.find("#token-list");
       tokenList.empty();
 
       availableTokens.forEach((token) => {
         tokenList.append(`
-            <div class="token-card" data-token-id="${token.id}">
+            <div class="token-card ${
+              token.id === preselectedToken.id ? "selected" : ""
+            }" data-token-id="${token.id}">
               <img src="${getTokenImage(token)}">
               <div>${token.name}</div>
             </div>

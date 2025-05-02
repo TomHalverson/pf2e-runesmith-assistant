@@ -1,4 +1,12 @@
+## 0.3.1
+
+- `Updates`
+  - Speed up `Target Menu` automatically select either first target if you have targets, or self if there are no targets
+  - Filters out duplicates from `Target Menu`
+  - Always includes your User's Character in the `targetMenu`
+
 ## 0.3.0
+
 - `Features`
   - `Specific Rune Handling`
     - Added specific handling for invoking the `Holtrick` rune
@@ -8,7 +16,7 @@
 - `Fixes`
   - A rune expiring no longer clears out your runes
   - Commented out most of the console logs
-- 
+
 ## 0.2.3
 
 - Allow Invoking / Dispelling multiple runes at once
