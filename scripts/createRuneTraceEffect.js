@@ -65,11 +65,7 @@ export async function createRuneTraceEffect({
         value: "created by PF2e Runesmith Assistant",
       },
       // note: naming this just 'temporary-effect-...' will lead to a PF2E bug, apparently!
-      slug: game.pf2e.system.sluggify(
-        `pra-trace-tracker-${name}-${person ?? object ?? ""}${item ? "-" : ""}${
-          item ?? ""
-        }`
-      ),
+      slug: game.pf2e.system.sluggify(name),
     },
   };
   const act = object ? tokenSource.actor : targetToken?.actor;
@@ -88,7 +84,7 @@ export async function createEffect({ tokenID, targetID, effectData }) {
     "Item",
     [
       {
-        ...effectData
+        ...effectData,
       },
     ],
     {
