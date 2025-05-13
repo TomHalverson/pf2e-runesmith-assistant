@@ -20,7 +20,11 @@ export async function invokeRuneDialog() {
   }
 }
 
-async function pickDialog({ token }) {
+export async function pickDialog({
+  token,
+  type = "invoke",
+  title = "Rune List",
+}) {
   // Get rune flags
   const flags = token?.actor?.getFlag(MODULE_ID, "runes");
   const etched = flags?.etched ?? [];
@@ -176,56 +180,79 @@ async function pickDialog({ token }) {
     </form>
     `;
 
+  const buttons = {};
+
   // Show dialog
   return new Promise((resolve) => {
-    new Dialog({
-      title: "Rune List",
-      content,
-      buttons: {
-        Invoke: {
-          label: `<span class="pf2-icon">1</span> Invoke`,
-          callback: async (html) => {
-            // Collect all checked checkboxes for both types
-            let etchedIds = Array.from(
-              html.find("input[type='checkbox'][name='etched']:checked")
-            ).map((e) => e.value);
-            let tracedIds = Array.from(
-              html.find("input[type='checkbox'][name='traced']:checked")
-            ).map((e) => e.value);
+    if (type === "invoke") {
+      buttons.Invoke = {
+        label: `<span class="pf2-icon">1</span> Invoke`,
+        callback: async (html) => {
+          // Collect all checked checkboxes for both types
+          let etchedIds = Array.from(
+            html.find("input[type='checkbox'][name='etched']:checked")
+          ).map((e) => e.value);
+          let tracedIds = Array.from(
+            html.find("input[type='checkbox'][name='traced']:checked")
+          ).map((e) => e.value);
 
-            // Compose result: array of {id, type}
-            let selected = [
-              ...etchedIds.map((id) => ({ id, type: "etched" })),
-              ...tracedIds.map((id) => ({ id, type: "traced" })),
-            ];
-            if (selected.length) resolve({ selected, action: "invoke" });
-          },
-          icon: '<i class="fa-solid fa-hand-holding-magic"></i>',
+          // Compose result: array of {id, type}
+          let selected = [
+            ...etchedIds.map((id) => ({ id, type: "etched" })),
+            ...tracedIds.map((id) => ({ id, type: "traced" })),
+          ];
+          if (selected.length) resolve({ selected, action: "invoke" });
         },
-        Dispel: {
-          label: `Dispel`,
-          callback: async (html) => {
-            let etchedIds = Array.from(
-              html.find("input[type='checkbox'][name='etched']:checked")
-            ).map((e) => e.value);
-            let tracedIds = Array.from(
-              html.find("input[type='checkbox'][name='traced']:checked")
-            ).map((e) => e.value);
-            let selected = [
-              ...etchedIds.map((id) => ({ id, type: "etched" })),
-              ...tracedIds.map((id) => ({ id, type: "traced" })),
-            ];
-            if (selected.length) resolve({ selected, action: "dispel" });
-          },
-          icon: '<i class="fa-solid fa-trash"></i>',
+        icon: '<i class="fa-solid fa-hand-holding-magic"></i>',
+      };
+      buttons.Dispel = {
+        label: `Dispel`,
+        callback: async (html) => {
+          let etchedIds = Array.from(
+            html.find("input[type='checkbox'][name='etched']:checked")
+          ).map((e) => e.value);
+          let tracedIds = Array.from(
+            html.find("input[type='checkbox'][name='traced']:checked")
+          ).map((e) => e.value);
+          let selected = [
+            ...etchedIds.map((id) => ({ id, type: "etched" })),
+            ...tracedIds.map((id) => ({ id, type: "traced" })),
+          ];
+          if (selected.length) resolve({ selected, action: "dispel" });
         },
-      },
+        icon: '<i class="fa-solid fa-trash"></i>',
+      };
+    } else if (type === "select") {
+      buttons.Select = {
+        label: `Select`,
+        callback: async (html) => {
+          let etchedIds = Array.from(
+            html.find("input[type='checkbox'][name='etched']:checked")
+          ).map((e) => e.value);
+          let tracedIds = Array.from(
+            html.find("input[type='checkbox'][name='traced']:checked")
+          ).map((e) => e.value);
+          let selected = [
+            ...etchedIds.map((id) => ({ id, type: "etched" })),
+            ...tracedIds.map((id) => ({ id, type: "traced" })),
+          ];
+          if (selected.length) resolve({ selected, action: "select" });
+        },
+        icon: '<i class="fa-solid fa-circle-check"></i>',
+      };
+    }
+    new Dialog({
+      title,
+      content,
+      buttons,
       render: (html) => {
         // Rune image hover: highlight token
         html.find(".rune-item:not(.placeholder)").hover(
           function (event) {
-            const target = JSON.parse(event.target.dataset.runeTarget);
-            if (target.type === "person" && target.token) {
+            const target = event?.target?.dataset?.runeTarget
+              ? JSON.parse(event.target.dataset.runeTarget)
+              : null;
+            if (target?.type === "person" && target?.token) {
               const token =
                 canvas.tokens.get(target.token) ||
                 canvas.tokens.placeables.find(
@@ -238,8 +265,10 @@ async function pickDialog({ token }) {
           },
           function (event) {
             // Remove highlight when mouse leaves
-            const target = JSON.parse(event.target.dataset.runeTarget);
-            if (target.type === "person" && target.token) {
+            const target = event?.target?.dataset?.runeTarget
+              ? JSON.parse(event.target.dataset.runeTarget)
+              : null;
+            if (target?.type === "person" && target?.token) {
               const token =
                 canvas.tokens.get(target.token) ||
                 canvas.tokens.placeables.find(

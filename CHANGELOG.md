@@ -1,3 +1,11 @@
+## 0.3.2
+
+- `Added`
+  - Added specific handling for invoking the `Zohk` rune and `Chain of Words`
+- `Updates`
+  - Fixed effect slugs to be more compatible with `Pf2e Graphics`
+  - Fixed hover bug on `Invoke Runes` dialog
+
 ## 0.3.1
 
 - `Updates`
