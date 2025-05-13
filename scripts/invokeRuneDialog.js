@@ -295,6 +295,8 @@ export async function pickDialog({
  */
 export async function dispelRune({ token, act, runeID, type }) {
   const actor = token?.actor ?? act;
+  const tok =
+    token ?? canvas.tokens.placeables.find((t) => t.actor.id === actor.id);
   const flag = actor?.getFlag(MODULE_ID, "runes");
   const { target } = flag[type].find((r) => r.id === runeID);
   flag[type] = flag?.[type]?.filter((r) => r.id !== runeID);
@@ -302,7 +304,7 @@ export async function dispelRune({ token, act, runeID, type }) {
   game.pf2eRunesmithAssistant.socket.executeAsGM("deleteEffect", {
     id: runeID,
     target,
-    srcToken: token.id,
+    srcToken: tok.id,
   });
 }
 
