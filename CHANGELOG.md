@@ -1,3 +1,8 @@
+## 0.3.3
+
+- `Fixed`
+  - Fixed duration issue where rune effects would expire at the end of the target's turn not of the runesmith's
+
 ## 0.3.2
 
 - `Added`

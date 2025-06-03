@@ -246,41 +246,49 @@ export async function pickDialog({
       content,
       buttons,
       render: (html) => {
-        // Rune image hover: highlight token
         html.find(".rune-item:not(.placeholder)").hover(
           function (event) {
-            const target = event?.target?.dataset?.runeTarget
-              ? JSON.parse(event.target.dataset.runeTarget)
+            // Use `this` instead of event.target
+            const target = this.dataset.runeTarget
+              ? JSON.parse(this.dataset.runeTarget)
               : null;
-            if (target?.type === "person" && target?.token) {
+            if (
+              target?.type === "person" &&
+              target?.token &&
+              canvas?.tokens
+            ) {
               const token =
                 canvas.tokens.get(target.token) ||
                 canvas.tokens.placeables.find(
-                  (t) => t.actor.id === target.actor
+                  (t) => t.actor?.id === target.actor
                 );
               if (token) {
-                token._onHoverIn(event); // highlight token
+                token.emit('hoverToken', true); // highlight token
               }
             }
           },
           function (event) {
-            // Remove highlight when mouse leaves
-            const target = event?.target?.dataset?.runeTarget
-              ? JSON.parse(event.target.dataset.runeTarget)
+            const target = this.dataset.runeTarget
+              ? JSON.parse(this.dataset.runeTarget)
               : null;
-            if (target?.type === "person" && target?.token) {
+            if (
+              target?.type === "person" &&
+              target?.token &&
+              canvas?.tokens
+            ) {
               const token =
                 canvas.tokens.get(target.token) ||
                 canvas.tokens.placeables.find(
-                  (t) => t.actor.id === target.actor
+                  (t) => t.actor?.id === target.actor
                 );
               if (token) {
-                token._onHoverOut(event); // remove highlight
+                token.emit('hoverToken', false); // remove highlight
               }
             }
           }
         );
       },
+      
     }).render(true, { width: 700 });
   });
 }

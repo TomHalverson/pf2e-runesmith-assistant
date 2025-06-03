@@ -61,6 +61,13 @@ export async function createRuneTraceEffect({
           },
         },
       },
+      context: {
+        origin: {
+          actor: tokenSource.actor.uuid,
+          token: tokenSource.uuid,
+        },
+        target: targetToken?.uuid,
+      },
       source: {
         value: "created by PF2e Runesmith Assistant",
       },
