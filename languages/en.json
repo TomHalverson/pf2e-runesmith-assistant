@@ -1,6 +1,13 @@
 {
   "I18N.LANGUAGE": "English",
   "pf2e-runesmith-assistant": {
+    "keywords": {
+      "etch": "Etch",
+      "trace": "Trace",
+      "invoke": "Invoke",
+      "dispel": "Dispel",
+      "select": "Select"
+    },
     "ui": {
       "header": "Rune Management"
     },
@@ -24,8 +31,18 @@
       }
     },
     "dialog": {
+      "buttons": {
+        "cancel": "Cancel"
+      },
       "invoke": {
+        "title": "Invoke Rune",
         "failed-or-willing": "Target is willing or has failed the check?"
+      },
+      "dispel": {
+        "title": "Dispel Rune"
+      },
+      "etch-trace": {
+        "title": "Rune List"
       }
     },
     "effect": {

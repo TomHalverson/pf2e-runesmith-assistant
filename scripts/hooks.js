@@ -6,7 +6,7 @@ import {
   invokeRuneDialog,
 } from "./invokeRuneDialog.js";
 import { targetDescription } from "./messageHelpers.js";
-import { getMaxEtchedRunes, hasFeat, isRunesmith } from "./misc.js";
+import { getMaxEtchedRunes, hasFeat, isRunesmith, localize } from "./misc.js";
 import { MODULE_ID } from "./module.js";
 import { runeEtchTraceDialog } from "./runeDialog.js";
 
@@ -75,7 +75,7 @@ export function setupHooks() {
       const emptyCount = Math.max(0, MAX_ETCHED - regularEtched.length);
 
       let etchedHtml = `
-  <div class="runes-section etched-runes">
+  <div class="runesmith-assistant runes-section etched-runes">
     <label><strong>Etched Runes</strong></label>
     <div class="runes-row">
       ${regularEtched
@@ -124,7 +124,7 @@ export function setupHooks() {
 
       // Build Traced Runes section (no placeholders, wraps)
       let tracedHtml = `
-  <div class="runes-section traced-runes">
+  <div class="runesmith-assistant runes-section traced-runes">
     <label><strong>Traced Runes</strong></label>
     <div class="runes-row" style="flex-wrap:wrap;">
       ${traced
@@ -192,21 +192,38 @@ export function setupHooks() {
             }
           );
 
-          new Dialog({
-            title: "Invoke Rune",
+          foundry.applications.api.DialogV2.wait({
+            window: {
+              title: localize("dialog.invoke.title"),
+              controls: [
+                {
+                  action: "kofi",
+                  label: "Support Dev",
+                  icon: "fa-solid fa-mug-hot fa-beat-fade",
+                  onClick: () =>
+                    window.open("https://ko-fi.com/chasarooni", _blank),
+                },
+              ],
+              icon: "far fa-chart-network",
+            },
             content,
-            buttons: {
-              yes: {
-                label: `<span class="pf2-icon">1</span> Invoke`,
+            buttons: [
+              {
+                action: "invoke",
+                label: `<span class="pf2-icon">1</span> ${localize(
+                  "keywords.invoke"
+                )}`,
                 callback: () => {
                   invokeRune({ act: actor, runeID, type: runeType });
                 },
-                icon: '<i class="fa-solid fa-hand-holding-magic"></i>',
+                icon: "fa-solid fa-hand-holding-magic",
               },
-              no: {
-                label: "Cancel",
+              {
+                action: "cancel",
+                icon: "fa-solid fa-xmark",
+                label: localize("dialog.buttons.cancel"),
               },
-            },
+            ],
           }).render(true);
         });
 
@@ -235,22 +252,36 @@ export function setupHooks() {
             }
           );
 
-          new Dialog({
-            title: "Dispel Rune",
+          foundry.applications.api.DialogV2.wait({
+            window: {
+              title: localize("dialog.dispel.title"),
+              controls: [
+                {
+                  action: "kofi",
+                  label: "Support Dev",
+                  icon: "fa-solid fa-mug-hot fa-beat-fade",
+                  onClick: () =>
+                    window.open("https://ko-fi.com/chasarooni", _blank),
+                },
+              ],
+              icon: "fa-solid fa-trash",
+            },
             content,
-            buttons: {
-              yes: {
-                label: "Dispel",
+            buttons: [
+              {
+                label: localize("keywords.dispel"),
                 callback: () => {
                   dispelRune({ act: actor, runeID, type: runeType });
                   ui.notifications.info(`Dispelled ${runeData.rune.name}!`);
                 },
                 icon: '<i class="fa-solid fa-trash"></i>',
               },
-              no: {
-                label: "Cancel",
+              {
+                action: "cancel",
+                icon: "fa-solid fa-xmark",
+                label: localize("dialog.buttons.cancel"),
               },
-            },
+            ],
           }).render(true);
         });
 
@@ -298,12 +329,16 @@ export function setupHooks() {
         return `<b>${runeFlag.rune.name}</b><p><i>on ${targetDescription(
           runeFlag.target
         )}</i></p><hr>${enrichedDesc}<hr>
-  <p><b>Invoke Rune: </b><span class='reference'>${game.i18n.localize(
-    "CONTROLS.LeftClick"
-  )}</span></p>
-  <p><b>Dispel Rune: </b><span class='reference'>${game.i18n.localize(
-    "CONTROLS.RightClick"
-  )}</span></p>
+  <p><b>${localize(
+    "dialog.invoke.title"
+  )}: </b><span class='reference'>${game.i18n.localize(
+          "CONTROLS.LeftClick"
+        )}</span></p>
+  <p><b>${localize(
+    "dialog.dispel.title"
+  )}: </b><span class='reference'>${game.i18n.localize(
+          "CONTROLS.RightClick"
+        )}</span></p>
   <p><b>Highlight Affected Token: </b><span class='reference'>Hover</span></p>`;
       }
     }
@@ -336,7 +371,7 @@ export function setupHooks() {
     if (game.user.id !== userid) return;
     switch (msg?.item?.sourceId) {
       case MSG_ITEMS["Chain of Words"]:
-        await chainOfWords();
+        if (!msg?.flags?.pf2e?.context?.type) await chainOfWords();
         break;
       case MSG_ITEMS["Etch Rune"]:
         runeEtchTraceDialog({ etchOnly: true });

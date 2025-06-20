@@ -1,7 +1,7 @@
 import { EMPTY_RUNE_ART } from "./const.js";
 import { handleSpecificRunes } from "./handleSpecificRunes.js";
 import { runeInvokedMessage, targetDescription } from "./messageHelpers.js";
-import { getMaxEtchedRunes, getYourToken } from "./misc.js";
+import { getMaxEtchedRunes, getYourToken, localize } from "./misc.js";
 import { MODULE_ID } from "./module.js";
 
 export async function invokeRuneDialog() {
@@ -157,22 +157,6 @@ export async function pickDialog({
 
   // Compose dialog content
   let content = `
-    <style>
-        .rune-section { margin-bottom: 10px; }
-        .rune-label { font-weight: bold; margin-bottom: 4px; }
-        .form-group { display: flex; flex-wrap: wrap; gap: 10px; }
-        .rune-label, .radio-label { display: flex; flex-direction: column; align-items: center; min-width: 80px; background: rgba(255,255,255,0.1); border-radius: 6px; padding: 5px; }
-        .rune-label input, .radio-label input { display: none; }
-        .rune-label img, .radio-label img { width: 50px; height: 50px; margin-bottom: 6px; }
-        .rune-name { font-size: 0.9em; margin-top: 2px; word-break: break-word; }
-        .rune-icon { display: flex; flex-direction: column; align-items: center; min-width: 80px; }
-        .rune-icon.temp img { opacity: 0.3; }
-        [name="etched"]:checked + img, [name="song"]:checked + img { outline: 2px solid #f00; }
-        [name="etched"]:checked + img, [name="traced"]:checked + img { outline: 2px solid #f00; }
-        [name="etched"]:checked + img, [name="etched"]:checked + img { outline: 2px solid #f00; }
-        hr { margin: 16px 0; }
-        .rune-purple-shadow { box-shadow: 0 0 6px 2px rgba(128, 0, 255, 0.8); border-radius: 6px; /* Optional: round corners to match images */ }
-    </style>
     <form class="songpicker">
         ${renderEtchedRunes(etched, MAX_ETCHED, "Etched Runes")}
         <hr>
@@ -180,57 +164,67 @@ export async function pickDialog({
     </form>
     `;
 
-  const buttons = {};
+  const buttons = [];
 
   // Show dialog
   return new Promise((resolve) => {
     if (type === "invoke") {
-      buttons.Invoke = {
-        label: `<span class="pf2-icon">1</span> Invoke`,
-        callback: async (html) => {
-          // Collect all checked checkboxes for both types
-          let etchedIds = Array.from(
-            html.find("input[type='checkbox'][name='etched']:checked")
-          ).map((e) => e.value);
-          let tracedIds = Array.from(
-            html.find("input[type='checkbox'][name='traced']:checked")
-          ).map((e) => e.value);
+      buttons.push(
+        {
+          action: "invoke",
+          label: `<span class="pf2-icon">1</span> ${localize(
+            "keywords.invoke"
+          )}`,
+          callback: async (event, button, dialog) => {
+            const html = dialog.element ? dialog.element : dialog;
+            // Collect all checked checkboxes for both types
+            let etchedIds = Array.from(
+              $(html).find("input[type='checkbox'][name='etched']:checked")
+            ).map((e) => e.value);
+            let tracedIds = Array.from(
+              $(html).find("input[type='checkbox'][name='traced']:checked")
+            ).map((e) => e.value);
 
-          // Compose result: array of {id, type}
-          let selected = [
-            ...etchedIds.map((id) => ({ id, type: "etched" })),
-            ...tracedIds.map((id) => ({ id, type: "traced" })),
-          ];
-          if (selected.length) resolve({ selected, action: "invoke" });
+            // Compose result: array of {id, type}
+            let selected = [
+              ...etchedIds.map((id) => ({ id, type: "etched" })),
+              ...tracedIds.map((id) => ({ id, type: "traced" })),
+            ];
+            if (selected.length) resolve({ selected, action: "invoke" });
+          },
+          icon: "fa-solid fa-hand-holding-magic",
         },
-        icon: '<i class="fa-solid fa-hand-holding-magic"></i>',
-      };
-      buttons.Dispel = {
-        label: `Dispel`,
-        callback: async (html) => {
-          let etchedIds = Array.from(
-            html.find("input[type='checkbox'][name='etched']:checked")
-          ).map((e) => e.value);
-          let tracedIds = Array.from(
-            html.find("input[type='checkbox'][name='traced']:checked")
-          ).map((e) => e.value);
-          let selected = [
-            ...etchedIds.map((id) => ({ id, type: "etched" })),
-            ...tracedIds.map((id) => ({ id, type: "traced" })),
-          ];
-          if (selected.length) resolve({ selected, action: "dispel" });
-        },
-        icon: '<i class="fa-solid fa-trash"></i>',
-      };
+        {
+          action: "dispel",
+          label: localize("keywords.dispel"),
+          callback: async (event, button, dialog) => {
+            const html = dialog.element ? dialog.element : dialog;
+            let etchedIds = Array.from(
+              $(html).find("input[type='checkbox'][name='etched']:checked")
+            ).map((e) => e.value);
+            let tracedIds = Array.from(
+              $(html).find("input[type='checkbox'][name='traced']:checked")
+            ).map((e) => e.value);
+            let selected = [
+              ...etchedIds.map((id) => ({ id, type: "etched" })),
+              ...tracedIds.map((id) => ({ id, type: "traced" })),
+            ];
+            if (selected.length) resolve({ selected, action: "dispel" });
+          },
+          icon: "fa-solid fa-trash",
+        }
+      );
     } else if (type === "select") {
-      buttons.Select = {
-        label: `Select`,
-        callback: async (html) => {
+      buttons.push({
+        action: "select",
+        label: localize("keywords.select"),
+        callback: async (event, button, dialog) => {
+          const html = dialog.element ? dialog.element : dialog;
           let etchedIds = Array.from(
-            html.find("input[type='checkbox'][name='etched']:checked")
+            $(html).find("input[type='checkbox'][name='etched']:checked")
           ).map((e) => e.value);
           let tracedIds = Array.from(
-            html.find("input[type='checkbox'][name='traced']:checked")
+            $(html).find("input[type='checkbox'][name='traced']:checked")
           ).map((e) => e.value);
           let selected = [
             ...etchedIds.map((id) => ({ id, type: "etched" })),
@@ -238,11 +232,22 @@ export async function pickDialog({
           ];
           if (selected.length) resolve({ selected, action: "select" });
         },
-        icon: '<i class="fa-solid fa-circle-check"></i>',
-      };
+        icon: "fa-solid fa-circle-check",
+      });
     }
-    new Dialog({
-      title,
+    foundry.applications.api.DialogV2.wait({
+      window: {
+        title,
+        controls: [
+          {
+            action: "kofi",
+            label: "Support Dev",
+            icon: "fa-solid fa-mug-hot fa-beat-fade",
+            onClick: () => window.open("https://ko-fi.com/chasarooni", _blank),
+          },
+        ],
+        icon: "far fa-chart-network",
+      },
       content,
       buttons,
       render: (html) => {
@@ -252,18 +257,14 @@ export async function pickDialog({
             const target = this.dataset.runeTarget
               ? JSON.parse(this.dataset.runeTarget)
               : null;
-            if (
-              target?.type === "person" &&
-              target?.token &&
-              canvas?.tokens
-            ) {
+            if (target?.type === "person" && target?.token && canvas?.tokens) {
               const token =
                 canvas.tokens.get(target.token) ||
                 canvas.tokens.placeables.find(
                   (t) => t.actor?.id === target.actor
                 );
               if (token) {
-                token.emit('hoverToken', true); // highlight token
+                token.emit("hoverToken", true); // highlight token
               }
             }
           },
@@ -271,24 +272,19 @@ export async function pickDialog({
             const target = this.dataset.runeTarget
               ? JSON.parse(this.dataset.runeTarget)
               : null;
-            if (
-              target?.type === "person" &&
-              target?.token &&
-              canvas?.tokens
-            ) {
+            if (target?.type === "person" && target?.token && canvas?.tokens) {
               const token =
                 canvas.tokens.get(target.token) ||
                 canvas.tokens.placeables.find(
                   (t) => t.actor?.id === target.actor
                 );
               if (token) {
-                token.emit('hoverToken', false); // remove highlight
+                token.emit("hoverToken", false); // remove highlight
               }
             }
           }
         );
       },
-      
     }).render(true, { width: 700 });
   });
 }
