@@ -1,3 +1,12 @@
+## 0.4.0
+
+- `Updated`
+  - V13 Support
+  - Fvtt appV2 `Dialog`
+  - Fixed new fvtt styling issues
+  - Fixed instances where `chain of words` macro was called on every roll with it in it
+  -
+
 ## 0.3.3
 
 - `Fixed`

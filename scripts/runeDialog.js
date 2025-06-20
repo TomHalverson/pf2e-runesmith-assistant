@@ -1,5 +1,10 @@
 import { runeAppliedMessage } from "./messageHelpers.js";
-import { getEffects, getMaxEtchedRunes, getYourToken } from "./misc.js";
+import {
+  getEffects,
+  getMaxEtchedRunes,
+  getYourToken,
+  localize,
+} from "./misc.js";
 import { MODULE_ID } from "./module.js";
 import { showDynamicTargetForm } from "./targetDialog.js";
 
@@ -62,49 +67,6 @@ async function pickDialog({ runes, actor, token, options }) {
   </label>`;
   }
   let content = `
-  <style>
-    .songpicker .form-group {
-        display: flex;
-        flex-wrap: wrap;
-        width: 100%;
-        align-items: flex-start;
-        gap: 10px; /* Adds space between items */
-    }
-
-    .songpicker .radio-label {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        justify-items: center;
-        flex: 1 0 19%; /* Slightly less than 25% to allow for gap */
-        min-width: 120px; /* Ensures minimum width for each label */
-        margin: 5px 0; /* Vertical margin between rows */
-        padding: 5px 5px; /* Padding inside each label */
-        box-sizing: border-box;
-        background: rgba(255,255,255,0.1); /* Optional: subtle background */
-        border-radius: 6px; /* Optional: rounded corners */
-    }
-
-    .songpicker .radio-label input {
-        display: none;
-    }
-
-    .songpicker img {
-        border: 0px;
-        width: 50px;
-        height: 50px;
-        flex: 0 0 50px;
-        cursor: pointer;
-        margin-bottom: 6px;
-    }
-
-    /* CHECKED STYLES */
-    .songpicker [type=radio]:checked + img {
-        outline: 2px solid #f00;
-    }
-  </style>
-
   <form class="songpicker">
     <div class="form-group" id="songs">
         ${rune_content}
@@ -113,12 +75,13 @@ async function pickDialog({ runes, actor, token, options }) {
   `;
 
   let image = new Promise((resolve) => {
-    let buttons = {};
+    const buttons = [];
 
     if (!options?.traceOnly) {
-      buttons.Etch = {
-        label: `Etch`,
-        callback: async (html) => {
+      buttons.push({
+        action: "etch",
+        label: localize("keywords.etch"),
+        callback: async () => {
           let itemId = $("input[type='radio'][name='song']:checked").val();
           addRune(
             runes.find((s) => s.id === itemId),
@@ -127,54 +90,79 @@ async function pickDialog({ runes, actor, token, options }) {
           resolve(itemId);
         },
         icon: '<i class="fa-solid fa-hammer-crash"></i>',
-      };
+      });
     }
 
     if (!options?.etchOnly) {
-      buttons.Trace = {
-        label: `<span class="pf2-icon">1</span> Trace`,
-        callback: async (html) => {
-          let itemId = $("input[type='radio'][name='song']:checked").val();
-          addRune(
-            runes.find((s) => s.id === itemId),
-            { actor, token, type: "traced", action: "1" }
-          );
-          resolve(itemId);
+      buttons.push(
+        {
+          label: `<span class="pf2-icon">1</span> ${localize(
+            "keywords.trace"
+          )}`,
+          callback: async () => {
+            let itemId = $("input[type='radio'][name='song']:checked").val();
+            addRune(
+              runes.find((s) => s.id === itemId),
+              { actor, token, type: "traced", action: "1" }
+            );
+            resolve(itemId);
+          },
+          icon: '<i class="fa-solid fa-pencil"></i>',
         },
-        icon: '<i class="fa-solid fa-pencil"></i>',
-      };
-      buttons.Trace2Action = {
-        label: `<span class="pf2-icon">2</span> Trace (30 ft)`,
-        callback: async (html) => {
-          let itemId = $("input[type='radio'][name='song']:checked").val();
-          addRune(
-            runes.find((s) => s.id === itemId),
-            { actor, token, type: "traced", action: "2" }
-          );
-          resolve(itemId);
-        },
-        icon: '<i class="fa-solid fa-pencil"></i>',
-      };
+        {
+          label: `<span class="pf2-icon">2</span> ${localize(
+            "keywords.trace"
+          )} (30 ft)`,
+          callback: async () => {
+            let itemId = $("input[type='radio'][name='song']:checked").val();
+            addRune(
+              runes.find((s) => s.id === itemId),
+              { actor, token, type: "traced", action: "2" }
+            );
+            resolve(itemId);
+          },
+          icon: '<i class="fa-solid fa-pencil"></i>',
+        }
+      );
     }
-    new Dialog({
-      title: "Rune List",
+    foundry.applications.api.DialogV2.wait({
+      window: {
+        title: localize("dialog.etch-trace.title"),
+        controls: [
+          {
+            action: "kofi",
+            label: "Support Dev",
+            icon: "fa-solid fa-mug-hot fa-beat-fade",
+            onClick: () => window.open("https://ko-fi.com/chasarooni", _blank),
+          },
+        ],
+        icon: "fas fa-stamp",
+      },
       content,
       buttons,
-      render: (html) => {
+      render: (_event, app) => {
+        const html = app.element ? app.element : app;
         // Attach right-click listener to rune images
-        html.find(".radio-label img").on("contextmenu", async function (event) {
-          event.preventDefault();
-          const runeId = $(this)
-            .closest("label")
-            .find("input[type=radio]")
-            .val();
-          const runeObj = runes.find((s) => s.id === runeId);
-          // Call addRune with free: true
-          await addRune(runeObj, { actor, token, type: "etched", free: true });
-          resolve(runeId); // Optionally resolve the promise
-        });
+        $(html)
+          .find(".radio-label img")
+          .on("contextmenu", async function (event) {
+            const runeId = $(this)
+              .closest("label")
+              .find("input[type=radio]")
+              .val();
+            const runeObj = runes.find((s) => s.id === runeId);
+            // Call addRune with free: true
+            await addRune(runeObj, {
+              actor,
+              token,
+              type: "etched",
+              free: true,
+            });
+            resolve(runeId); // Optionally resolve the promise
+          });
       },
-    }).render(true, { width: 700 });
+      position: { width: 700 },
+    });
   });
   return image;
 }

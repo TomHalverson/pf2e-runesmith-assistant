@@ -6,7 +6,7 @@
   "library": "false",
   "compatibility": {
     "minimum": 12,
-    "verified": 12
+    "verified": 13
   },
   "authors": [
     {
@@ -27,6 +27,7 @@
   },
   "esmodules": ["scripts/module.js"],
   "scripts": ["scripts/lib/lib.js"],
+  "styles": ["styles/style.css"],
   "languages": [
     {
       "lang": "en",
