@@ -80,14 +80,12 @@ export async function pickDialog({
     // Render regular runes
     for (let runeData of regularRunes) {
       let rune = runeData.rune;
-      html += `<label class="rune-label rune-item${
-        runeData?.id ? "" : " placeholder"
-      }"
+      html += `<label class="rune-label rune-item${runeData?.id ? "" : " placeholder"
+        }"
         data-tooltip="<i>Applied to ${targetDescription(
           runeData.target
-        ).replaceAll('"', "'")}</i><hr>${
-        enrichedDescriptions[rune.id].replaceAll('"', "'") ?? rune.name
-      }"
+        ).replaceAll('"', "'")}</i><hr>${enrichedDescriptions[rune.id].replaceAll('"', "'") ?? rune.name
+        }"
         data-tooltip-direction="UP"
         data-rune-target='${JSON.stringify(runeData.target)}'
         >
@@ -108,14 +106,12 @@ export async function pickDialog({
     // Render free runes at the end
     for (let runeData of freeRunes) {
       let rune = runeData.rune;
-      html += `<label class="rune-label rune-item${
-        runeData?.id ? "" : " placeholder"
-      }"
+      html += `<label class="rune-label rune-item${runeData?.id ? "" : " placeholder"
+        }"
         data-tooltip="<i>Applied to ${targetDescription(
           runeData.target
-        ).replaceAll('"', "'")}</i><hr>${
-        enrichedDescriptions[rune.id].replaceAll('"', "'") ?? rune.name
-      }"
+        ).replaceAll('"', "'")}</i><hr>${enrichedDescriptions[rune.id].replaceAll('"', "'") ?? rune.name
+        }"
         data-tooltip-direction="UP"
         data-rune-target='${JSON.stringify(runeData.target)}'
         >
@@ -143,11 +139,9 @@ export async function pickDialog({
         data-rune-target='${JSON.stringify(runeData.target)}'
         >
             <input type="checkbox" name="traced" value="${runeData?.id}">
-            <img src="${
-              rune.img
-            }" style="border:0px; width: 50px; height:50px;" ${
-        runeData.free ? 'class="rune-purple-shadow"' : ""
-      }>
+            <img src="${rune.img
+        }" style="border:0px; width: 50px; height:50px;" ${runeData.free ? 'class="rune-purple-shadow"' : ""
+        }>
             <span class="rune-name">${rune.name}</span>
         </label>`;
     }
@@ -172,7 +166,7 @@ export async function pickDialog({
       buttons.push(
         {
           action: "invoke",
-          label: `<span class="pf2-icon">1</span> ${localize(
+          label: `${localize(
             "keywords.invoke"
           )}`,
           callback: async (event, button, dialog) => {
@@ -243,15 +237,19 @@ export async function pickDialog({
             action: "kofi",
             label: "Support Dev",
             icon: "fa-solid fa-mug-hot fa-beat-fade",
-            onClick: () => window.open("https://ko-fi.com/chasarooni", _blank),
+            onClick: () => window.open("https://ko-fi.com/chasarooni", "_blank"),
           },
         ],
         icon: "far fa-chart-network",
       },
       content,
+      position: {
+        width: 700,
+      },
       buttons,
-      render: (html) => {
-        html.find(".rune-item:not(.placeholder)").hover(
+      render: (_event, app) => {
+        const html = app.element ? app.element : app;
+        $(html).find(".rune-item:not(.placeholder)").hover(
           function (event) {
             // Use `this` instead of event.target
             const target = this.dataset.runeTarget
@@ -285,7 +283,7 @@ export async function pickDialog({
           }
         );
       },
-    }).render(true, { width: 700 });
+    });
   });
 }
 
@@ -308,7 +306,7 @@ export async function dispelRune({ token, act, runeID, type }) {
   game.pf2eRunesmithAssistant.socket.executeAsGM("deleteEffect", {
     id: runeID,
     target,
-    srcToken: tok.id,
+    srcTokenID: tok.id,
   });
 }
 
@@ -332,7 +330,7 @@ export async function invokeRune({ token, act, runeID, type }) {
   const rune = await fromUuid(flagData.rune.uuid);
   const invocation = getInvocation(
     rune?.description ??
-      "Rune has been removed from your inventory so it has no result"
+    "Rune has been removed from your inventory so it has no result"
   );
 
   const traits = [
@@ -365,7 +363,7 @@ export async function invokeRune({ token, act, runeID, type }) {
   game.pf2eRunesmithAssistant.socket.executeAsGM("deleteEffect", {
     id: runeID,
     target,
-    srcToken: tok.id,
+    srcTokenID: tok.id,
   });
   await actor.setFlag(MODULE_ID, "runes", flag);
 }

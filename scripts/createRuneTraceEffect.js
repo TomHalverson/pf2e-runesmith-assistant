@@ -14,14 +14,22 @@ export async function createRuneTraceEffect({
   const object = target?.object;
   const item = target?.item;
 
-  const effectName = `[${type === "etched" ? "Etched" : "Traced"}] ${name}${
-    object || item ? " on " : ""
-  }${object || ""}${item || ""}`;
+  const effectName = `[${type === "etched" ? "Etched" : "Traced"}] ${name}${object || item ? " on " : ""
+    }${object || ""}${item || ""}`;
 
   const effectData = {
     type: "effect",
     name: effectName,
     img: img,
+    flags: {
+      "pf2e-runesmith-assistant": {
+        source: {
+          id,
+          actorUUID: tokenSource.actor.uuid,
+          type,
+        },
+      },
+    },
     system: {
       tokenIcon: { show: true },
       duration: {
@@ -42,24 +50,15 @@ export async function createRuneTraceEffect({
       rules: object
         ? []
         : rune.effects.map((effectUUID) => ({
-            key: "GrantItem",
-            onDeleteActions: {
-              grantee: "restrict",
-            },
-            allowDuplicate: true,
-            uuid: effectUUID,
-          })),
+          key: "GrantItem",
+          onDeleteActions: {
+            grantee: "restrict",
+          },
+          allowDuplicate: true,
+          uuid: effectUUID,
+        })),
       level: {
         value: tokenSource?.actor?.level ?? 1,
-      },
-      flags: {
-        "pf2e-runesmith-assistant": {
-          source: {
-            id,
-            actorUUID: tokenSource.actor.uuid,
-            type,
-          },
-        },
       },
       context: {
         origin: {
