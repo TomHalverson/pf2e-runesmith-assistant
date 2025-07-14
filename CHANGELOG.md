@@ -1,3 +1,10 @@
+## 0.5.0
+
+- `Fixed`
+  - `Dispel` & `Invoke` now remove the rune effects
+  - Removing a rune effect now removes it from the `runesmith's` runes
+  - Fixed areas with weird styling for text etc.
+
 ## 0.4.0
 
 - `Updated`
@@ -5,7 +12,6 @@
   - Fvtt appV2 `Dialog`
   - Fixed new fvtt styling issues
   - Fixed instances where `chain of words` macro was called on every roll with it in it
-  -
 
 ## 0.3.3
 

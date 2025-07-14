@@ -89,16 +89,15 @@ async function pickDialog({ runes, actor, token, options }) {
           );
           resolve(itemId);
         },
-        icon: '<i class="fa-solid fa-hammer-crash"></i>',
+        icon: "fa-solid fa-hammer-crash",
       });
     }
 
     if (!options?.etchOnly) {
       buttons.push(
         {
-          label: `<span class="pf2-icon">1</span> ${localize(
-            "keywords.trace"
-          )}`,
+          label: `${localize("keywords.trace")}`,
+          action: "trace",
           callback: async () => {
             let itemId = $("input[type='radio'][name='song']:checked").val();
             addRune(
@@ -107,12 +106,11 @@ async function pickDialog({ runes, actor, token, options }) {
             );
             resolve(itemId);
           },
-          icon: '<i class="fa-solid fa-pencil"></i>',
+          icon: "fa-solid fa-pencil",
         },
         {
-          label: `<span class="pf2-icon">2</span> ${localize(
-            "keywords.trace"
-          )} (30 ft)`,
+          label: `${localize("keywords.trace")} (30 ft)`,
+          action: "trace2",
           callback: async () => {
             let itemId = $("input[type='radio'][name='song']:checked").val();
             addRune(
@@ -121,7 +119,7 @@ async function pickDialog({ runes, actor, token, options }) {
             );
             resolve(itemId);
           },
-          icon: '<i class="fa-solid fa-pencil"></i>',
+          icon: "fa-solid fa-pencil",
         }
       );
     }
@@ -133,7 +131,7 @@ async function pickDialog({ runes, actor, token, options }) {
             action: "kofi",
             label: "Support Dev",
             icon: "fa-solid fa-mug-hot fa-beat-fade",
-            onClick: () => window.open("https://ko-fi.com/chasarooni", _blank),
+            onClick: () => window.open("https://ko-fi.com/chasarooni", "_blank"),
           },
         ],
         icon: "fas fa-stamp",
