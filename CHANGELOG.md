@@ -1,3 +1,7 @@
+## 0.5.1
+
+- Actually included the changes from `0.5.0`
+
 ## 0.5.0
 
 - `Fixed`
