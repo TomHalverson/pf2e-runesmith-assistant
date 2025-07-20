@@ -1,0 +1,69 @@
+{{!-- Complete Workflow Form --}}
+<div class="workflow-form">
+  <div class="form-header">
+    <h2>Complete Workflow Form</h2>
+    <span class="form-subtitle">{{subtitle}}</span>
+    <button class="close-button" type="button">&times;</button>
+  </div>
+
+  <form>
+    {{!-- Target Type Selection --}}
+    <div class="form-section">
+      <label class="section-label">Target Type</label>
+      <div class="button-group">
+        <button type="button" class="tab-button {{#if (eq targetType 'object')}}active{{/if}}" data-target="object">
+          Unattended Object
+        </button>
+        <button type="button" class="tab-button {{#if (eq targetType 'person')}}active{{/if}}" data-target="person">
+          Person
+        </button>
+      </div>
+    </div>
+
+    {{!-- Token Selection (only for Person) --}}
+    {{#if (eq targetType 'person')}}
+    <div class="form-section">
+      <label class="section-label">Select Token</label>
+      <div class="token-grid">
+        {{#each tokens}}
+        <div class="token-item {{#if selected}}selected{{/if}}" data-token="{{id}}">
+          <img src="{{image}}" alt="{{name}}" class="token-image">
+          <span class="token-name">{{name}}</span>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    {{!-- Item Location (only for Person) --}}
+    <div class="form-section">
+      <label class="section-label">Item Location</label>
+      <div class="button-group">
+        <button type="button" class="tab-button {{#if (eq itemLocation 'person')}}active{{/if}}" data-location="person">
+          On Person
+        </button>
+        <button type="button" class="tab-button {{#if (eq itemLocation 'item')}}active{{/if}}" data-location="item">
+          On Item
+        </button>
+      </div>
+    </div>
+    {{/if}}
+
+    {{!-- Item Name --}}
+    <div class="form-section">
+      <label class="section-label">Item Name</label>
+      <input 
+        type="text" 
+        class="item-name-input" 
+        placeholder="Enter item name" 
+        value="{{itemName}}"
+        name="itemName"
+      >
+    </div>
+
+    {{!-- Form Actions --}}
+    <div class="form-actions">
+      <button type="button" class="btn btn-cancel">Cancel</button>
+      <button type="submit" class="btn btn-primary">Complete</button>
+    </div>
+  </form>
+</div>
