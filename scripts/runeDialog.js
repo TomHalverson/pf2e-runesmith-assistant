@@ -173,7 +173,7 @@ async function addRune(
   { actor, token, type = "etched", action = 0, free }
 ) {
   const targets = await showDynamicTargetForm();
-  if (!target) return;
+  if (!targets || !targets?.length || targets === 'cancel') return;
   for (const target of targets) {
     let runes = actor.getFlag(MODULE_ID, "runes");
     const id = foundry.utils.randomID();

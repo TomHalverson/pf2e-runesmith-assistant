@@ -208,7 +208,7 @@ export function setupHooks() {
             buttons: [
               {
                 action: "invoke",
-                label: `<span class="pf2-icon">1</span> ${localize(
+                label: `${localize(
                   "keywords.invoke"
                 )}`,
                 callback: () => {

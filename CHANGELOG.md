@@ -2,6 +2,10 @@
 
 - Add Support for multiple targets in one trace
 - Updated target dialog to AppV2
+- Added better support for Pf2e Toolbelt when invoking runes with saves
+  - Now will either
+    - **Have Targets** - Add the Rolls for all targetted tokens
+    - **Not Targets** - Add Roll for the original target
 
 ## 0.5.1
 

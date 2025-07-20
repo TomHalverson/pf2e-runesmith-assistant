@@ -86,6 +86,24 @@ export async function runeInvokedMessage({
   const enrichedDescription = await TextEditor.enrichHTML(invocation, {
     rollData,
   });
+
+  const flags = {
+    pf2e: {
+      origin: {
+        sourceId: actor.id,
+        uuid: rune?.uuid,
+        type: "equipment",
+      },
+    },
+  };
+
+  if (game.modules.get('pf2e-toolbelt')?.active) {
+    const flagInfo = handleToolbelt(enrichedDescription, actor.uuid, target);
+    if (flagInfo) {
+      flags['pf2e-toolbelt'] = flagInfo;
+    }
+  }
+
   await ChatMessage.create({
     author: game.user.id,
     content: `<b>${rune?.link}</b> <i>on ${targetDescription(
@@ -100,16 +118,67 @@ export async function runeInvokedMessage({
       name: localize("message.invoke.rune"),
       glyph: "1",
     }),
-    flags: {
-      pf2e: {
-        origin: {
-          sourceId: actor.id,
-          uuid: rune?.uuid,
-          type: "equipment",
-        },
-      },
-    },
+    flags,
   });
+}
+
+function handleToolbelt(description, sourceUUID, target) {
+  const dcInfo = getDCInfo(description);
+  if (!dcInfo) return null;
+
+  const targetToken = target?.type === "object" ? null : getToken(target.token, target.actor)?.document?.uuid;
+
+  const targets = game.user.targets.size > 0 ? [...game.user.targets].map(t => t.document.uuid) : (targetToken ? [targetToken] : [])
+
+  return {
+    targetHelper: {
+      type: "spell",
+      save: { author: sourceUUID, basic: dcInfo.basic, dc: dcInfo.dc, statistic: dcInfo.statistic },
+      targets: targets
+    }
+  }
+
+}
+
+function getDCInfo(description) {
+  const DC_REGEXES = [
+    /(data-pf2-dc=")(\d+)(")/g,
+    /(@Check\[.*?type:.*?|dc:)(\d+)(.*?])/g
+  ];
+
+  // Look for data-pf2-check attribute to get the statistic
+  const checkMatch = description.match(/data-pf2-check="([^"]+)"/);
+  const statistic = checkMatch ? checkMatch[1] : null;
+
+  // Look for DC value in spans and check if "Basic" is present
+  const spanMatch = description.match(/<span[^>]*>DC\s+(\d+)<\/span>\s*([^<]*)</i);
+  let dcValue = null;
+  let isBasic = false;
+
+  if (spanMatch) {
+    dcValue = parseInt(spanMatch[1]);
+    isBasic = spanMatch[2].toLowerCase().includes('basic');
+  } else {
+    // Fallback to original regex patterns if span pattern doesn't match
+    for (const regex of DC_REGEXES) {
+      regex.lastIndex = 0;
+      const match = regex.exec(description);
+      if (match !== null) {
+        dcValue = parseInt(match[2]);
+        break;
+      }
+    }
+  }
+
+  if (dcValue !== null) {
+    return {
+      dc: dcValue,
+      statistic: statistic,
+      isBasic: isBasic
+    };
+  }
+
+  return null;
 }
 
 async function getMessageFlavor({
@@ -139,11 +208,14 @@ export function targetDescription(target) {
   } else if (target?.type === "object") {
     return target?.object || localize("message.target.an-object");
   } else {
-    const token =
-      canvas.tokens.get(target.token) ||
-      canvas.tokens.placeables.find((t) => t.actor.id === target.actor);
+    const token = getToken(target.token, target.actor);
     const name = token?.name ?? target.personName;
     const item = target?.item;
     return `${name}${item ? "'s " : ""}${item || ""}`;
   }
+}
+
+function getToken(tokenID, actorID) {
+  return canvas.tokens.get(tokenID) ||
+    canvas.tokens.placeables.find((t) => t.actor.id === actorID)
 }
