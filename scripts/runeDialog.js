@@ -172,31 +172,34 @@ async function addRune(
   rune,
   { actor, token, type = "etched", action = 0, free }
 ) {
-  const target = await showDynamicTargetForm();
-  let runes = actor.getFlag(MODULE_ID, "runes");
-  const id = foundry.utils.randomID();
+  const targets = await showDynamicTargetForm();
+  if (!target) return;
+  for (const target of targets) {
+    let runes = actor.getFlag(MODULE_ID, "runes");
+    const id = foundry.utils.randomID();
 
-  if (type === "etched") {
-    const maxEtchedRunes = getMaxEtchedRunes(token.actor);
-    if (runes.etched.filter((r) => !r.free).length >= maxEtchedRunes) {
-      runes.etched.pop();
+    if (type === "etched") {
+      const maxEtchedRunes = getMaxEtchedRunes(token.actor);
+      if (runes.etched.filter((r) => !r.free).length >= maxEtchedRunes) {
+        runes.etched.pop();
+      }
     }
+
+    runes[type].push({
+      rune,
+      target,
+      id,
+      ...(free && { free }),
+    });
+
+    game.pf2eRunesmithAssistant.socket.executeAsGM("createTraceEffect", {
+      rune,
+      target,
+      tokenID: token.id,
+      id,
+      type,
+    });
+    await actor.setFlag(MODULE_ID, "runes", runes);
+    await runeAppliedMessage({ actor, token, rune, target, type, action });
   }
-
-  runes[type].push({
-    rune,
-    target,
-    id,
-    ...(free && { free }),
-  });
-
-  game.pf2eRunesmithAssistant.socket.executeAsGM("createTraceEffect", {
-    rune,
-    target,
-    tokenID: token.id,
-    id,
-    type,
-  });
-  await actor.setFlag(MODULE_ID, "runes", runes);
-  await runeAppliedMessage({ actor, token, rune, target, type, action });
 }

@@ -55,9 +55,8 @@ function applyMessageHelper({ rune, target, type }) {
   let targetText = "";
 
   if (target.type === "object") {
-    targetText = ` ${localize("message.apply.onto")} <b><u>${
-      target.object
-    }</u></b>`;
+    targetText = ` ${localize("message.apply.onto")} <b><u>${target.object
+      }</u></b>`;
   } else if (target.type === "person") {
     const tokenName = getAllowedTokenName(canvas.tokens.get(target?.token));
     if (target?.location === "actor") {
@@ -67,9 +66,8 @@ function applyMessageHelper({ rune, target, type }) {
     } else if (target?.location === "item") {
       targetText = ` ${localize(
         "message.apply.onto"
-      )} <u><b>${tokenName}</b>${localize("message.apply.'s")} <b>${
-        target.item
-      }</b></u>`;
+      )} <u><b>${tokenName}</b>${localize("message.apply.'s")} <b>${target.item
+        }</b></u>`;
     }
   }
 
@@ -136,7 +134,9 @@ async function getMessageFlavor({
 }
 
 export function targetDescription(target) {
-  if (target.type === "object") {
+  if (!target) {
+    return ''
+  } else if (target?.type === "object") {
     return target?.object || localize("message.target.an-object");
   } else {
     const token =

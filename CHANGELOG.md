@@ -1,3 +1,8 @@
+## 0.6.0
+
+- Add Support for multiple targets in one trace
+- Updated target dialog to AppV2
+
 ## 0.5.1
 
 - Actually included the changes from `0.5.0`
