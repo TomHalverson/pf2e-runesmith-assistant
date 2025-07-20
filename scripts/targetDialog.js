@@ -155,7 +155,7 @@ export function showDynamicTargetForm() {
 
     // Auto-select first targeted token or first available
     const targetedTokens = game.user.targets.toObject();
-    const preselectedTokens = targetedTokens.length > 0 ? targetedTokens[0] :
+    const preselectedTokens = targetedTokens.length > 0 ? targetedTokens :
       (formData.availableTokens.length === 1 ? [formData.availableTokens[0].token] : []);
 
     if (preselectedTokens.length > 0) {
