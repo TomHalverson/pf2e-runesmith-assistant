@@ -8,15 +8,18 @@
 .rune-section {
   margin-bottom: 10px;
 }
+
 .rune-label {
   font-weight: bold;
   margin-bottom: 4px;
 }
+
 .form-group {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
+
 .rune-label,
 .radio-label {
   display: flex;
@@ -27,48 +30,59 @@
   border-radius: 6px;
   padding: 5px;
 }
+
 .rune-label input,
 .radio-label input {
   display: none;
 }
+
 .rune-label img,
 .radio-label img {
   width: 50px;
   height: 50px;
   margin-bottom: 6px;
 }
+
 .rune-name {
   font-size: 0.9em;
   margin-top: 2px;
   word-break: break-word;
 }
+
 .rune-icon {
   display: flex;
   flex-direction: column;
   align-items: center;
   min-width: 80px;
 }
+
 .rune-icon.temp img {
   opacity: 0.3;
 }
-[name="etched"]:checked + img,
-[name="song"]:checked + img {
+
+[name="etched"]:checked+img,
+[name="song"]:checked+img {
   outline: 2px solid #f00;
 }
-[name="etched"]:checked + img,
-[name="traced"]:checked + img {
+
+[name="etched"]:checked+img,
+[name="traced"]:checked+img {
   outline: 2px solid #f00;
 }
-[name="etched"]:checked + img,
-[name="etched"]:checked + img {
+
+[name="etched"]:checked+img,
+[name="etched"]:checked+img {
   outline: 2px solid #f00;
 }
+
 hr {
   margin: 16px 0;
 }
+
 .rune-purple-shadow {
   box-shadow: 0 0 6px 2px rgba(128, 0, 255, 0.8);
-  border-radius: 6px; /* Optional: round corners to match images */
+  border-radius: 6px;
+  /* Optional: round corners to match images */
 }
 
 /* Etch or Trace */
@@ -77,7 +91,8 @@ hr {
   flex-wrap: wrap;
   width: 100%;
   align-items: flex-start;
-  gap: 10px; /* Adds space between items */
+  gap: 10px;
+  /* Adds space between items */
 }
 
 .songpicker .radio-label {
@@ -86,13 +101,19 @@ hr {
   align-items: center;
   text-align: center;
   justify-items: center;
-  flex: 1 0 19%; /* Slightly less than 25% to allow for gap */
-  min-width: 120px; /* Ensures minimum width for each label */
-  margin: 5px 0; /* Vertical margin between rows */
-  padding: 5px 5px; /* Padding inside each label */
+  flex: 1 0 19%;
+  /* Slightly less than 25% to allow for gap */
+  min-width: 120px;
+  /* Ensures minimum width for each label */
+  margin: 5px 0;
+  /* Vertical margin between rows */
+  padding: 5px 5px;
+  /* Padding inside each label */
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.1); /* Optional: subtle background */
-  border-radius: 6px; /* Optional: rounded corners */
+  background: rgba(255, 255, 255, 0.1);
+  /* Optional: subtle background */
+  border-radius: 6px;
+  /* Optional: rounded corners */
 }
 
 .songpicker .radio-label input {
@@ -109,6 +130,65 @@ hr {
 }
 
 /* CHECKED STYLES */
-.songpicker [type="radio"]:checked + img {
+.songpicker [type="radio"]:checked+img {
   outline: 2px solid #f00;
+}
+
+.runesmith-target-dialog {
+  .form-section {
+    margin-bottom: 20px;
+  }
+
+  .option-row {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+  }
+
+  .option-button {
+    padding: 10px 20px;
+    border: 1px solid #999;
+    border-radius: 3px;
+    cursor: pointer;
+    flex: 1;
+    text-align: center;
+  }
+
+  .option-button.active {
+    background: rgb(234, 74, 114, 0.5);
+    border-color: rgb(234 74 114);
+    font-weight: bold;
+  }
+
+  .token-selector {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    max-height: 200px;
+    overflow-y: auto;
+    margin: 10px 0;
+  }
+
+  .token-card {
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    padding: 5px;
+    border-radius: 3px;
+  }
+
+  .token-card.selected {
+    border-color: rgb(234 74 114);
+    background: rgb(234, 74, 114, 0.1);
+  }
+
+  .token-card img {
+    width: 60px;
+    height: 60px;
+    border-radius: 3px;
+  }
+
+  .hidden {
+    display: none;
+  }
 }

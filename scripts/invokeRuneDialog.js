@@ -244,7 +244,7 @@ export async function pickDialog({
       },
       content,
       position: {
-        width: 700,
+        width: 500,
       },
       buttons,
       render: (_event, app) => {
