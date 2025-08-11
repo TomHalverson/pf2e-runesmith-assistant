@@ -134,7 +134,7 @@ function handleToolbelt(description, sourceUUID, target, runeUUID, traits) {
 
   return {
     targetHelper: {
-      type: "check",
+      type: "action",
       author: sourceUUID,
       item: runeUUID,
       traits: traits ?? [],
