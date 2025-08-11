@@ -98,7 +98,9 @@ export async function runeInvokedMessage({
   };
 
   if (game.modules.get('pf2e-toolbelt')?.active) {
-    const flagInfo = handleToolbelt(enrichedDescription, actor.uuid, target);
+    const flagInfo = handleToolbelt(
+      enrichedDescription, actor.uuid, target, rune?.uuid, rune?.system?.traits?.value
+    );
     if (flagInfo) {
       flags['pf2e-toolbelt'] = flagInfo;
     }
@@ -122,7 +124,7 @@ export async function runeInvokedMessage({
   });
 }
 
-function handleToolbelt(description, sourceUUID, target) {
+function handleToolbelt(description, sourceUUID, target, runeUUID, traits) {
   const dcInfo = getDCInfo(description);
   if (!dcInfo) return null;
 
@@ -132,8 +134,13 @@ function handleToolbelt(description, sourceUUID, target) {
 
   return {
     targetHelper: {
-      type: "spell",
-      save: { author: sourceUUID, basic: dcInfo.basic, dc: dcInfo.dc, statistic: dcInfo.statistic },
+      type: "check",
+      author: sourceUUID,
+      item: runeUUID,
+      traits: traits ?? [],
+      saveVariants: {
+        "null": { basic: dcInfo.basic, dc: dcInfo.dc, statistic: dcInfo.statistic },
+      },
       targets: targets
     }
   }

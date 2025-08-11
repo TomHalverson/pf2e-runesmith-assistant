@@ -1,3 +1,7 @@
+## 0.6.1
+
+- Fix toolbelt integration for v13
+
 ## 0.6.0
 
 - Add Support for multiple targets in one trace
