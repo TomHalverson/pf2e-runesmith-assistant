@@ -99,9 +99,14 @@ export async function runeInvokedMessage({
   };
 
   if (game.modules.get('pf2e-toolbelt')?.active) {
-    const flagInfo = handleToolbelt(
-      enrichedDescription, actor?.uuid, target, rune?.uuid, rune?.system?.traits?.value, rune.sourceId, actor?.alliance
-    );
+    const flagInfo = handleToolbelt({
+      description: enrichedDescription,
+      sourceUUID: actor?.uuid, target,
+      runeUUID: rune?.uuid,
+      traits: rune?.system?.traits?.value,
+      runeSourceID: rune.sourceId,
+      sourceAlliance: actor?.alliance
+    });
     if (flagInfo) {
       flags['pf2e-toolbelt'] = flagInfo;
     }
@@ -125,7 +130,7 @@ export async function runeInvokedMessage({
   });
 }
 
-function handleToolbelt(description, sourceUUID, target, runeUUID, traits, runeSourceID, sourceAlliance = "party") {
+function handleToolbelt({ description, sourceUUID, target, runeUUID, traits, runeSourceID, sourceAlliance = "party" }) {
   const dcInfo = getDCInfo(description);
   if (!dcInfo) return null;
 
@@ -137,13 +142,15 @@ function handleToolbelt(description, sourceUUID, target, runeUUID, traits, runeS
 
   if (runeSourceID === RUNES.TROLISTRI_FORLORN_SORROW && targetToken) {
     const enemyAlliances = ALLIANCES.filter(a => a !== sourceAlliance);
-    targets = canvas.tokens.placeables.filter(t => enemyAlliances.includes(t?.actor?.alliance) && targetToken.distanceTo(t) <= 20)
+    targets = canvas.tokens.placeables.filter(t =>
+      enemyAlliances.includes(t?.actor?.alliance) && targetToken.distanceTo(t) <= 20
+    ).map(t => t?.document?.uuid)
   }
 
   return {
     targetHelper: {
       type: "action",
-      author: sourceUUID.uuid,
+      author: sourceUUID,
       item: runeUUID,
       traits: traits ?? [],
       saveVariants: {
