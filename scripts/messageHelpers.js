@@ -1,3 +1,4 @@
+import { RUNES } from "./const.js";
 import { localize } from "./misc.js";
 import { getAllowedTokenName } from "./targetDialog.js";
 
@@ -99,7 +100,7 @@ export async function runeInvokedMessage({
 
   if (game.modules.get('pf2e-toolbelt')?.active) {
     const flagInfo = handleToolbelt(
-      enrichedDescription, actor.uuid, target, rune?.uuid, rune?.system?.traits?.value
+      enrichedDescription, actor, target, rune?.uuid, rune?.system?.traits?.value, rune.sourceId
     );
     if (flagInfo) {
       flags['pf2e-toolbelt'] = flagInfo;
@@ -124,18 +125,23 @@ export async function runeInvokedMessage({
   });
 }
 
-function handleToolbelt(description, sourceUUID, target, runeUUID, traits) {
+function handleToolbelt(description, actor, target, runeUUID, traits, runeSourceID) {
   const dcInfo = getDCInfo(description);
   if (!dcInfo) return null;
 
-  const targetToken = target?.type === "object" ? null : getToken(target.token, target.actor)?.document?.uuid;
+  const targetToken = target?.type === "object" ? null : getToken(target.token, target.actor);
 
-  const targets = game.user.targets.size > 0 ? [...game.user.targets].map(t => t.document.uuid) : (targetToken ? [targetToken] : [])
+  let targets = game.user.targets.size > 1 || !targetToken ? [...game.user.targets].map(t => t.document.uuid) : (targetToken ? [targetToken?.document?.uuid] : [])
+
+  if (runeSourceID === RUNES.TROLISTRI_FORLORN_SORROW && targetToken) {
+    const disposition = actor.prototypeToken.disposition;
+    targets = canvas.tokens.placeables.filter(t => t?.document?.disposition === -disposition && targetToken.distanceTo(t) <= 20)
+  }
 
   return {
     targetHelper: {
       type: "action",
-      author: sourceUUID,
+      author: actor.uuid,
       item: runeUUID,
       traits: traits ?? [],
       saveVariants: {

@@ -1,3 +1,7 @@
+## 0.7.0
+
+- Added special handling for Trolistri
+
 ## 0.6.1
 
 - Fix toolbelt integration for v13
