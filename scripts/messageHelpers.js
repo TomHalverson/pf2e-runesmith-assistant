@@ -1,4 +1,4 @@
-import { RUNES } from "./const.js";
+import { ALLIANCES, RUNES } from "./const.js";
 import { localize } from "./misc.js";
 import { getAllowedTokenName } from "./targetDialog.js";
 
@@ -100,7 +100,7 @@ export async function runeInvokedMessage({
 
   if (game.modules.get('pf2e-toolbelt')?.active) {
     const flagInfo = handleToolbelt(
-      enrichedDescription, actor, target, rune?.uuid, rune?.system?.traits?.value, rune.sourceId
+      enrichedDescription, actor?.uuid, target, rune?.uuid, rune?.system?.traits?.value, rune.sourceId, actor?.alliance
     );
     if (flagInfo) {
       flags['pf2e-toolbelt'] = flagInfo;
@@ -125,23 +125,25 @@ export async function runeInvokedMessage({
   });
 }
 
-function handleToolbelt(description, actor, target, runeUUID, traits, runeSourceID) {
+function handleToolbelt(description, sourceUUID, target, runeUUID, traits, runeSourceID, sourceAlliance = "party") {
   const dcInfo = getDCInfo(description);
   if (!dcInfo) return null;
 
   const targetToken = target?.type === "object" ? null : getToken(target.token, target.actor);
 
-  let targets = game.user.targets.size > 1 || !targetToken ? [...game.user.targets].map(t => t.document.uuid) : (targetToken ? [targetToken?.document?.uuid] : [])
+  let targets = game.user.targets.size > 1 || !targetToken ?
+    [...game.user.targets].map(t => t.document.uuid) :
+    (targetToken ? [targetToken?.document?.uuid] : [])
 
   if (runeSourceID === RUNES.TROLISTRI_FORLORN_SORROW && targetToken) {
-    const disposition = actor.prototypeToken.disposition;
-    targets = canvas.tokens.placeables.filter(t => t?.document?.disposition === -disposition && targetToken.distanceTo(t) <= 20)
+    const enemyAlliances = ALLIANCES.filter(a => a !== sourceAlliance);
+    targets = canvas.tokens.placeables.filter(t => enemyAlliances.includes(t?.actor?.alliance) && targetToken.distanceTo(t) <= 20)
   }
 
   return {
     targetHelper: {
       type: "action",
-      author: actor.uuid,
+      author: sourceUUID.uuid,
       item: runeUUID,
       traits: traits ?? [],
       saveVariants: {
