@@ -175,12 +175,10 @@ export function setupHooks() {
           const runeType = event.target.dataset.runeType;
           const runeData = runes[runeType].find((r) => r.id === runeID);
           const content = await TextEditor.enrichHTML(
-            `<p>Do you want to invoke this rune?</p>
-                                              <strong>${runeData.rune.link
+            `<p>Do you want to invoke the rune <strong>${runeData.rune.link
             }</strong> on <i>${targetDescription(
               runeData.target
-            ).replaceAll('"', "'")}</i>?<hr>
-                                              <fieldset>${enrichedDescriptions[
+            ).replaceAll('"', "'")}</i>?</p><hr><fieldset>${enrichedDescriptions[
             runeData.rune.id
             ]
             }</fieldset>`,
@@ -203,6 +201,9 @@ export function setupHooks() {
                 },
               ],
               icon: "far fa-chart-network",
+            },
+            position: {
+              width: 500,
             },
             content,
             buttons: [
@@ -233,11 +234,10 @@ export function setupHooks() {
           const runeType = event.target.dataset.runeType;
           const runeData = runes[runeType].find((r) => r.id === runeID);
           const content = await TextEditor.enrichHTML(
-            `<p>Do you want to dispel (remove) this rune?</p><strong>
-                                              <strong>${runeData.rune.link
+            `<p>Do you want to dispel (remove) the rune <strong>${runeData.rune.link
             }</strong> on <i>${targetDescription(
               runeData.target
-            ).replaceAll('"', "'")}</i>?<hr>
+            ).replaceAll('"', "'")}</i>?</p><hr>
                                               <fieldset>${enrichedDescriptions[
             runeData.rune.id
             ]
@@ -261,6 +261,9 @@ export function setupHooks() {
                 },
               ],
               icon: "fa-solid fa-trash",
+            },
+            position: {
+              width: 500,
             },
             content,
             buttons: [

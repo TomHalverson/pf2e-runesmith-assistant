@@ -1,3 +1,8 @@
+## 0.7.1
+
+- `Updated`
+  - Fixed formatting on `Dispel` and `Invoke`
+
 ## 0.7.0
 
 - Added special handling for Trolistri
