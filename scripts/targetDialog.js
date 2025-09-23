@@ -1,42 +1,5 @@
 // Handlebars template for the dialog content
 const TEMPLATE = `
-<style>
-.token-card {
-  position: relative;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.token-card.selected::after {
-  content: "✓";
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  background: #4CAF50;
-  color: white;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.selected-count {
-  text-align: center;
-  font-style: italic;
-  color: #666;
-  margin-top: 8px;
-}
-
-.token-selector small {
-  font-weight: normal;
-  opacity: 0.7;
-}
-</style>
-
 <div class="runesmith-target-dialog">
   <div class="form-section" id="type-section">
     <h3>Target Type</h3>
@@ -268,6 +231,130 @@ export function showDynamicTargetForm() {
       dialog = app;
       const html = app.element ? app.element : app;
 
+      // Apply styles directly via JavaScript
+      const applyStyles = () => {
+        // Style the token selector container
+        const tokenSelector = $(html).find('.token-selector');
+        tokenSelector.css({
+          'display': 'flex',
+          'gap': '8px',
+          'flex-wrap': 'wrap',
+          'max-height': '180px',
+          'overflow-y': 'auto',
+          'margin': '10px 0',
+          'padding': '5px',
+          'background': 'rgba(0, 0, 0, 0.1)',
+          'border-radius': '4px'
+        });
+
+        // Style token cards
+        const tokenCards = $(html).find('.token-card');
+        tokenCards.css({
+          'position': 'relative',
+          'cursor': 'pointer',
+          'text-align': 'center',
+          'border': '2px solid transparent',
+          'padding': '4px',
+          'border-radius': '4px',
+          'max-width': '70px',
+          'min-width': '70px',
+          'flex-shrink': '0',
+          'background': 'rgba(255, 255, 255, 0.05)'
+        });
+
+        // Style token images - THIS IS THE KEY FIX
+        const tokenImages = $(html).find('.token-card img');
+        tokenImages.css({
+          'width': '45px',
+          'height': '45px',
+          'border-radius': '3px',
+          'object-fit': 'cover',
+          'display': 'block',
+          'margin': '0 auto 3px auto',
+          'border': '1px solid rgba(255, 255, 255, 0.2)'
+        });
+
+        // Style token names
+        const tokenNames = $(html).find('.token-card div');
+        tokenNames.css({
+          'font-size': '10px',
+          'line-height': '1.1',
+          'word-wrap': 'break-word',
+          'max-width': '65px',
+          'margin': '0 auto',
+          'overflow': 'hidden',
+          'text-overflow': 'ellipsis',
+          'white-space': 'nowrap'
+        });
+
+        // Style selected token cards
+        const selectedCards = $(html).find('.token-card.selected');
+        selectedCards.css({
+          'border-color': 'rgb(234, 74, 114)',
+          'background': 'rgba(234, 74, 114, 0.2)'
+        });
+
+        // Remove old checkmarks first
+        $(html).find('.token-checkmark').remove();
+
+        // Add checkmark for selected tokens
+        selectedCards.each(function() {
+          $(this).append('<div class="token-checkmark" style="position: absolute; top: 1px; right: 1px; background: #4CAF50; color: white; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; z-index: 100; line-height: 1;">✓</div>');
+        });
+
+        // Style other elements
+        $(html).find('.option-button').css({
+          'padding': '6px 12px',
+          'border': '1px solid #999',
+          'border-radius': '3px',
+          'cursor': 'pointer',
+          'flex': '1',
+          'text-align': 'center',
+          'font-size': '12px',
+          'background': 'rgba(255, 255, 255, 0.1)'
+        });
+
+        $(html).find('.option-button.active').css({
+          'background': 'rgba(234, 74, 114, 0.5)',
+          'border-color': 'rgb(234, 74, 114)',
+          'font-weight': 'bold'
+        });
+
+        $(html).find('.option-row').css({
+          'display': 'flex',
+          'gap': '10px',
+          'margin': '8px 0'
+        });
+
+        $(html).find('.form-section').css({
+          'margin-bottom': '15px'
+        });
+
+        $(html).find('.selected-count').css({
+          'text-align': 'center',
+          'font-style': 'italic',
+          'color': '#999',
+          'margin-top': '6px',
+          'font-size': '11px'
+        });
+
+        $(html).find('h3').css({
+          'margin': '0 0 8px 0',
+          'font-size': '14px'
+        });
+
+        $(html).find('input[type="text"]').css({
+          'width': '100%',
+          'padding': '4px 8px',
+          'border': '1px solid #999',
+          'border-radius': '3px',
+          'background': 'rgba(255, 255, 255, 0.1)'
+        });
+      };
+
+      // Apply styles immediately and after any updates
+      applyStyles();
+
       // Type selection handler
       $(html).on('click', '#type-section .option-button', (ev) => {
         const newType = ev.currentTarget.dataset.type;
@@ -322,6 +409,8 @@ export function showDynamicTargetForm() {
       function updateDialog() {
         const newContent = renderTemplate();
         $(html).find(".runesmith-target-dialog").html(newContent);
+        // Reapply styles after content update
+        setTimeout(applyStyles, 10);
       }
     }
   });
