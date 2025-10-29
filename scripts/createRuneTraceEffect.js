@@ -1,3 +1,5 @@
+import { MODULE_ID } from "./module.js";
+
 export async function createRuneTraceEffect({
   rune,
   target,
@@ -15,7 +17,12 @@ export async function createRuneTraceEffect({
   const item = target?.item;
 
   const effectName = `[${type === "etched" ? "Etched" : "Traced"}] ${name}${object || item ? " on " : ""
-    }${object || ""}${item || ""}`;
+  }${object || ""}${item || ""}`;
+
+  // Play trace/etch animation based on rune type (only for trace)
+  if (type === "traced") {
+    playTraceAnimation(rune, tokenSource, targetToken || tokenSource);
+  }
 
   const effectData = {
     type: "effect",
@@ -48,15 +55,15 @@ export async function createRuneTraceEffect({
         value: rune.traits,
       },
       rules: object
-        ? []
-        : rune.effects.map((effectUUID) => ({
-          key: "GrantItem",
-          onDeleteActions: {
-            grantee: "restrict",
-          },
-          allowDuplicate: true,
-          uuid: effectUUID,
-        })),
+      ? []
+      : rune.effects.map((effectUUID) => ({
+        key: "GrantItem",
+        onDeleteActions: {
+          grantee: "restrict",
+        },
+        allowDuplicate: true,
+        uuid: effectUUID,
+      })),
       level: {
         value: tokenSource?.actor?.level ?? 1,
       },
@@ -80,6 +87,85 @@ export async function createRuneTraceEffect({
   });
   //console.log({ effects });
   return effects;
+}
+
+// Play trace animation based on rune type
+function playTraceAnimation(rune, tokenSource, targetToken) {
+  // You'll need to get the actual IDs for these runes
+  // For now, checking by name - replace with actual source IDs
+  const runeName = rune.name?.toLowerCase();
+
+  if (runeName?.includes("fire") || runeName?.includes("atryl")) {
+    playFireTraceAnimation(tokenSource, targetToken);
+  } else if (runeName?.includes("thunder") || runeName?.includes("ranshu")) {
+    playThunderTraceAnimation(tokenSource, targetToken);
+  }
+}
+
+function playFireTraceAnimation(token, target) {
+  new Sequence({
+    moduleName: "PF2e Runesmith Assistant",
+    softFail: true,
+  })
+  .sound()
+  .file("psfx.3rd-level-spells.fireball.v1.001.beam")
+
+  .effect()
+  .delay(0)
+  .file("jb2a.fireball.beam.orange")
+  .atLocation(token)
+  .stretchTo(target)
+  .playbackRate(1)
+  .scale(3)
+  .waitUntilFinished(-900)
+
+  .effect()
+  .file("animated-spell-effects-cartoon.fire.15")
+  .atLocation(target)
+  .scale(0.3)
+
+  .effect()
+  .file("jb2a.magic_signs.rune.02.complete.01.orange")
+  .atLocation(target)
+  .scale(0.3)
+
+  .sound()
+  .file("psfx.casting.fire.001")
+
+  .play({ preload: true });
+}
+
+function playThunderTraceAnimation(token, target) {
+  new Sequence({
+    moduleName: "PF2e Runesmith Assistant",
+    softFail: true,
+  })
+  .sound()
+  .file("psfx.3rd-level-spells.fireball.v1.001.beam")
+
+  .effect()
+  .delay(0)
+  .file("animated-spell-effects-cartoon.electricity.24")
+  .atLocation(token)
+  .stretchTo(target)
+  .playbackRate(1)
+  .scale(3)
+  .waitUntilFinished(-900)
+
+  .effect()
+  .file("jb2a.static_electricity.03.blue")
+  .atLocation(target)
+  .scale(0.3)
+
+  .effect()
+  .file("jb2a.magic_signs.rune.02.complete.03.blue")
+  .atLocation(target)
+  .scale(0.3)
+
+  .sound()
+  .file("graphics-sfx.magic.lightning.cast.02")
+
+  .play({ preload: true });
 }
 
 export async function createEffect({ tokenID, targetID, effectData }) {
