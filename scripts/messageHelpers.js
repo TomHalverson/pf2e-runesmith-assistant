@@ -11,6 +11,7 @@ import { getAllowedTokenName } from "./targetDialog.js";
  * @param {any} param.target Target rune is applied to
  * @param {"etched" | "traced"} param.type Etched or Traced
  * @param {'' | '0' | '1' | '2' | '3' | 'r'} param.action Action cost
+ * @param {boolean} param.engravingStrike Whether this is from Engraving Strike
  */
 export async function runeAppliedMessage({
   actor,
@@ -19,11 +20,29 @@ export async function runeAppliedMessage({
   target,
   type,
   action,
+  engravingStrike = false,
 }) {
   const traceDistance =
     action === "2"
       ? ` (${localize("message.apply.traced.ft", { distance: 30 })})`
       : "";
+  
+  let messageName;
+  let traits;
+  let glyph;
+  
+  if (engravingStrike) {
+    messageName = localize("message.apply.traced.runeEngravingStrike");
+    traits = ["attack", "concentrate", "magical", "manipulate", "runesmith"];
+    glyph = "1"; // Engraving Strike is 1 action
+  } else {
+    messageName = localize(`message.apply.${type}.rune`, { distance: traceDistance });
+    traits = type === "etched"
+      ? ["exploration"]
+      : ["concentrate", "magical", "manipulate", "runesmith"];
+    glyph = type === "etched" ? "" : action;
+  }
+  
   await ChatMessage.create({
     author: game.user.id,
     content: applyMessageHelper({ rune, target, type }),
@@ -32,12 +51,9 @@ export async function runeAppliedMessage({
       token: token,
     }),
     flavor: await getMessageFlavor({
-      traits:
-        type === "etched"
-          ? ["exploration"]
-          : ["concentrate", "magical", "manipulate", "runesmith"],
-      name: localize(`message.apply.${type}.rune`, { distance: traceDistance }),
-      glyph: type === "etched" ? "" : action,
+      traits: traits,
+      name: messageName,
+      glyph: glyph,
     }),
     flags: {
       pf2e: {

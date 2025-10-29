@@ -94,11 +94,16 @@ function playTraceAnimation(rune, tokenSource, targetToken) {
   // You'll need to get the actual IDs for these runes
   // For now, checking by name - replace with actual source IDs
   const runeName = rune.name?.toLowerCase();
+  const runeSourceId = rune.uuid?.split('.').pop(); // Get the ID from UUID if available
 
   if (runeName?.includes("fire") || runeName?.includes("atryl")) {
     playFireTraceAnimation(tokenSource, targetToken);
   } else if (runeName?.includes("thunder") || runeName?.includes("ranshu")) {
     playThunderTraceAnimation(tokenSource, targetToken);
+  } else if (runeName?.includes("esvadir") || runeName?.includes("whetstone")) {
+    playEsvadirTraceAnimation(tokenSource, targetToken);
+  } else if (runeName?.includes("pluuna") || runeName?.includes("illumination")) {
+    playPluunaTraceAnimation(tokenSource, targetToken);
   }
 }
 
@@ -165,6 +170,77 @@ function playThunderTraceAnimation(token, target) {
   .sound()
   .file("graphics-sfx.magic.lightning.cast.02")
 
+  .play({ preload: true });
+}
+
+function playEsvadirTraceAnimation(token, target) {
+  new Sequence({
+    moduleName: "PF2e Runesmith Assistant",
+    softFail: true,
+  })
+  .sound()
+  .file("graphics-sfx.sword.melee.impale")
+  
+  .effect()
+  .delay(0)
+  .file("blfx.spell.range.beam.eldritch_blast1.color3")
+  .atLocation(token)
+  .stretchTo(target)
+  .playbackRate(1)
+  .scale(3)
+  .waitUntilFinished(-900)
+  
+  .effect()
+  .file("jb2a.claws.400px.dark_red")
+  .atLocation(target)
+  .scale(0.3)
+  
+  .effect()
+  .file("jb2a.magic_signs.rune.evocation.complete.red")
+  .atLocation(target)
+  .scale(0.3)
+  
+  .sound()
+  .file("psfx.casting.fire.001")
+  
+  .play({ preload: true });
+}
+
+function playPluunaTraceAnimation(token, target) {
+  new Sequence({
+    moduleName: "PF2e Runesmith Assistant",
+    softFail: true,
+  })
+  .sound()
+  .file("psfx.3rd-level-spells.fireball.v1.001.beam")
+  
+  .effect()
+  .delay(0)
+  .file("blfx.spell.range.projectile.light.guiding_bolt1.color1")
+  .atLocation(token)
+  .stretchTo(target)
+  .playbackRate(1)
+  .scale(3)
+  .waitUntilFinished(-900)
+  
+  .effect()
+  .file("jblfx.spell.cast.impact.holy_light2.release.color1")
+  .atLocation(target)
+  .scale(0.3)
+  
+  .effect()
+  .file("jb2a.magic_signs.rune.illusion.complete.yellow")
+  .atLocation(target)
+  .scale(0.3)
+  
+  .effect()
+  .file("jb2a.markers.light.complete.yellow")
+  .atLocation(target)
+  .scale(3.5)
+  
+  .sound()
+  .file("graphics-sfx.magic.lightning.cast.02")
+  
   .play({ preload: true });
 }
 

@@ -6,7 +6,8 @@
       "trace": "Trace",
       "invoke": "Invoke",
       "dispel": "Dispel",
-      "select": "Select"
+      "select": "Select",
+      "engravingStrike": "Engraving Strike"
     },
     "ui": {
       "header": "Rune Management"
@@ -21,6 +22,7 @@
         },
         "traced": {
           "rune": "Trace Rune{distance}",
+          "runeEngravingStrike": "Engraving Strike - Trace Rune",
           "ft": "{distance} ft."
         },
         "onto": "onto",
